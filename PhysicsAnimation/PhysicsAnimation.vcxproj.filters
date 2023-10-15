@@ -13,5 +13,72 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{f8eddc57-f962-4bd6-808a-3de599160c01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdl">
+      <UniqueIdentifier>{df47d5f7-0d3d-40d6-966f-7f4103e1d0a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering">
+      <UniqueIdentifier>{3a157dea-0927-419c-8ed4-08aff0c9f68d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{c76bbfa3-bea4-43ca-84e1-2f9d081822f9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Camera.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Renderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\glad.c">
+      <Filter>glad</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sdl\SDL.h">
+      <Filter>sdl</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\glad.h">
+      <Filter>glad</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Camera.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Renderer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\VBO_Writer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\AxisBox3F.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\Sphere.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\Line3F.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\Pos3F.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\Vec3F.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Renderable.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\TestRenderable.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\khrplatform.h">
+      <Filter>glad</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

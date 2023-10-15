@@ -8,3 +8,6 @@
 x64
 *.obj
 *.user
+Debug
+Release
+.gitignore.bak
