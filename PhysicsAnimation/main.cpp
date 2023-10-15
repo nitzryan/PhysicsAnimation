@@ -16,6 +16,13 @@ struct ScreenDetails {
 
 ScreenDetails screenDetails{ false, 800, 800 };
 
+struct UserInput {
+	bool leftPressed = false;
+	bool rightPressed = false;
+	bool upPressed = false;
+	bool downPressed = false;
+};
+
 int main(int, char**) {
 	// Setup SDL
 	SDL_Init(SDL_INIT_VIDEO);
@@ -48,7 +55,7 @@ int main(int, char**) {
 
 
 	Renderer renderer = Renderer();
-	Camera camera(1, 1, Pos3F(0, 0, 0));
+	Camera camera(1, 1, Pos3F(0.1, 0.25, -3));
 	camera.SetAspect(screenDetails.width, screenDetails.height);
 
 	// Main Loop
@@ -59,9 +66,8 @@ int main(int, char**) {
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
-	bool leftPressed = false;;
-	bool rightPressed = false;
-	bool compressLauncher = false;
+	
+	UserInput input;
 	while (!quit) {
 		// Keyboard events
 		while (SDL_PollEvent(&windowEvent)) {
@@ -73,25 +79,41 @@ int main(int, char**) {
 				SDL_SetWindowFullscreen(window, screenDetails.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 			}
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LEFT)
-				leftPressed = false;
+				input.leftPressed = false;
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_RIGHT)
-				rightPressed = false;
+				input.rightPressed = false;
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_DOWN)
-				compressLauncher = false;
+				input.downPressed = false;
+			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_UP)
+				input.upPressed = false;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LEFT)
-				leftPressed = true;
+				input.leftPressed = true;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_RIGHT)
-				rightPressed = true;
+				input.rightPressed = true;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_DOWN)
-				compressLauncher = true;
+				input.downPressed = true;
+			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_UP)
+				input.upPressed = true;
 		}
 
 		auto thisFrameTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<float>dt = thisFrameTime - lastFrameTime;
 
 		renderer.StartFrame();
-		renderer.SetCamera(camera.GetPos(), camera.GetViewportTrans());
+		renderer.SetCamera(camera.GetPos(), camera.GetViewportTrans(), Vec3F(0,0,1));
 		float frameTime = dt.count();
+		if (input.rightPressed) {
+			camera.Translate(Vec3F(-1, 0, 0), frameTime);
+		}
+		if (input.leftPressed) {
+			camera.Translate(Vec3F(1, 0, 0), frameTime);
+		}
+		if (input.upPressed) {
+			camera.Translate(Vec3F(0, 1, 0), frameTime);
+		}
+		if (input.downPressed) {
+			camera.Translate(Vec3F(0, -1, 0), frameTime);
+		}
 
 		renderer.Render(testRenderable);
 		renderer.FinalizeFrame();

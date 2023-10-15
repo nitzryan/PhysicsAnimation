@@ -1,6 +1,10 @@
 #include "Renderer.h"
 #include <iostream>
 
+#define GLM_FORCE_RADIANS
+#include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
+#include "../glm/gtc/type_ptr.hpp"
 
 void loadShader(GLuint shaderID, const GLchar* shaderSource) {
 	glShaderSource(shaderID, 1, &shaderSource, NULL);
@@ -20,12 +24,11 @@ const GLchar* vertexSource =
 "in vec3 position;"
 "in vec4 inColor;"
 "out vec4 Color;"
-"uniform vec3 CameraPos;"
-"uniform vec2 CameraScale;"
+"uniform mat4 view;"
+"uniform mat4 proj;"
 "void main() {"
-" vec3 centerPos = (position - CameraPos);"
 " Color = inColor;"
-" gl_Position = vec4(centerPos.x * CameraScale.x, centerPos.y * CameraScale.y, 0.0, 1.0);"
+" gl_Position = proj * view * vec4(position, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -37,7 +40,7 @@ const GLchar* fragmentSource =
 "}";
 
 
-Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1)
+Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1), cameraDir(0,0,-1)
 {
 	// Create shader, temporary, should move to seperate class
 	// Load and COmpile Shaders
@@ -76,7 +79,7 @@ Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1)
 	glEnableVertexAttribArray(posAttrib); //Mark the attribute’s location as valid
 	colAttrib = glGetAttribLocation(shaderProgram, "inColor");
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE,
-		vertexSize * sizeof(float), (void*)(2 * sizeof(float)));
+		vertexSize * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(colAttrib);
 	glBindVertexArray(0); //Unbind the VAO so we don’t accidentally modify it
 
@@ -116,16 +119,16 @@ void Renderer::Render(const Renderable& obj)
 	currentIndicesLoc += numIndices;
 }
 
-void Renderer::SetCamera(const Pos3F& pos, const Pos3F& scale)
+void Renderer::SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir)
 {
 	cameraPos = pos;
 	cameraScale = scale;
+	cameraDir = dir;
 }
 
 void Renderer::FinalizeFrame()
 {
-	glBufferData(GL_ARRAY_BUFFER, vboSize * sizeof(float), &vboContents[0], GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+	
 
 	glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -134,6 +137,22 @@ void Renderer::FinalizeFrame()
 	glUniform3f(cameraLocation, cameraPos.x, cameraPos.y, cameraPos.z);
 	int cameraScaleLoc = glGetUniformLocation(shaderProgram, "CameraScale");
 	glUniform2f(cameraScaleLoc, cameraScale.x, cameraScale.y);
+
+	glm::mat4 view = glm::lookAt(
+		glm::vec3(cameraPos.x, cameraPos.y, cameraPos.z), 
+		glm::vec3(cameraPos.x + cameraDir.x, cameraPos.y + cameraDir.y, cameraPos.z + cameraDir.z), 
+		glm::vec3(0, 1, 0)
+	);
+	GLint uView = glGetUniformLocation(shaderProgram, "view");
+	glUniformMatrix4fv(uView, 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::mat4 proj = glm::perspective(3.14f / 4, 1.0f, 0.1f, 10.0f);
+	GLint uProj = glGetUniformLocation(shaderProgram, "proj");
+	glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+	glBufferData(GL_ARRAY_BUFFER, currentVboLoc * sizeof(float), &vboContents[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, currentIndicesLoc * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
 	glBindVertexArray(vao);
 
 	glDrawElements(GL_TRIANGLES, currentIndicesLoc, GL_UNSIGNED_INT, 0);

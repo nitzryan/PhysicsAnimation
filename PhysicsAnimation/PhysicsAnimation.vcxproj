@@ -158,7 +158,9 @@
     <ClInclude Include="geometry\Vec3F.h" />
     <ClInclude Include="glad\glad.h" />
     <ClInclude Include="glad\khrplatform.h" />
+    <ClInclude Include="glm\glm.hpp" />
     <ClInclude Include="rendering\Camera.h" />
+    <ClInclude Include="rendering\ColorRGBA.h" />
     <ClInclude Include="rendering\Renderable.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\TestRenderable.h" />

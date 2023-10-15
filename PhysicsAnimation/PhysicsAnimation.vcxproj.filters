@@ -25,6 +25,9 @@
     <Filter Include="geometry">
       <UniqueIdentifier>{c76bbfa3-bea4-43ca-84e1-2f9d081822f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="glm">
+      <UniqueIdentifier>{ce671302-c6af-44fd-b5f8-e6956dfa1a3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,6 +82,12 @@
     </ClInclude>
     <ClInclude Include="glad\khrplatform.h">
       <Filter>glad</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ColorRGBA.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="glm\glm.hpp">
+      <Filter>glm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

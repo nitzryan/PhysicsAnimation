@@ -12,7 +12,7 @@ public:
 	~Renderer();
 	void StartFrame();
 
-	void SetCamera(const Pos3F& pos, const Pos3F& scale);
+	void SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir);
 	void Render(const Renderable& obj);
 	void FinalizeFrame();
 private:
@@ -29,6 +29,7 @@ private:
 	size_t currentIndicesLoc;
 
 	Pos3F cameraPos, cameraScale;
+	Vec3F cameraDir;
 	GLint posAttrib, colAttrib;
 	GLuint vertexShader, fragmentShader;
 };
