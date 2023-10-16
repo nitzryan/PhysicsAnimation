@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "rendering/TestRenderable.h"
+#include "rendering/TestCloth.h"
 
 struct ScreenDetails {
 	bool fullscreen;
@@ -62,7 +63,8 @@ int main(int, char**) {
 	SDL_Event windowEvent;
 	bool quit = false;
 
-	TestRenderable testRenderable = TestRenderable();
+	//TestRenderable testRenderable = TestRenderable();
+	TestCloth cloth = TestCloth();
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
@@ -115,7 +117,8 @@ int main(int, char**) {
 			camera.Translate(Vec3F(0, -1, 0), frameTime);
 		}
 
-		renderer.Render(testRenderable);
+		cloth.Update(frameTime);
+		renderer.Render(cloth);
 		renderer.FinalizeFrame();
 
 		lastFrameTime = thisFrameTime;

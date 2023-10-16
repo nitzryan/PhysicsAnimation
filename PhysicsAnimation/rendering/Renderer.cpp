@@ -27,7 +27,7 @@ const GLchar* vertexSource =
 "out vec4 Color;"
 "uniform mat4 view;"
 "uniform mat4 proj;"
-"const vec3 inlightDir = normalize(vec3(-1,-1,-1));"
+"const vec3 inlightDir = normalize(vec3(0,0,-1));"
 "out vec3 normalOut;"
 "out vec3 pos;"
 "out vec3 eyePos;"
@@ -50,17 +50,19 @@ const GLchar* fragmentSource =
 "in vec3 eyePos;"
 "in vec3 lightDir;"
 "out vec4 outColor;"
-"const float ambient = .3;"
+"const float ka = 0.6;"
+"const float kd = 0.2;"
+"const float ks = 0.2;"
 "void main() {"
 " vec3 N = normalize(normalOut);" //Re-normalized the interpolated normals
-" vec3 diffuseC = Color.xyz*max(dot(lightDir,N),0.0);"
-" vec3 ambC = Color.xyz*ambient;"
+" vec3 diffuseC = kd * Color.xyz*max(dot(lightDir,N),0.0);"
+" vec3 ambC = Color.xyz*ka;"
 " vec3 reflectDir = reflect(-lightDir,N);"
 " reflectDir = normalize(reflectDir);"
 " vec3 viewDir = normalize(-pos);" //We know the eye is at 0,0
 " float spec = max(dot(reflectDir,viewDir),0.0);"
 " if (dot(lightDir,N) <= 0.0) spec = 0;"
-" vec3 specC = vec3(.8,.8,.8)*pow(spec,8);"
+" vec3 specC = vec3(ks,ks,ks)*pow(spec,10);"
 " outColor = vec4(ambC+diffuseC+specC, Color.a);"
 "}";
 
@@ -132,7 +134,7 @@ void Renderer::StartFrame()
 	currentIndicesLoc = 0;
 }
 
-void Renderer::Render(const Renderable& obj)
+void Renderer::Render(const IRenderable& obj)
 {
 	int numVertices = obj.NumPoints() * vertexSize;
 	int numIndices = obj.NumIndices();
@@ -147,7 +149,7 @@ void Renderer::Render(const Renderable& obj)
 		return;
 	}
 
-	obj.Render(vboContents, currentVboLoc, indices, currentIndicesLoc);
+	obj.Render(vboContents, currentVboLoc, currentVboLoc / vertexSize, indices, currentIndicesLoc);
 	currentVboLoc += numVertices;
 	currentIndicesLoc += numIndices;
 }

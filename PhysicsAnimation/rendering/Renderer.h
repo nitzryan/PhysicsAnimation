@@ -2,7 +2,7 @@
 
 #include "../glad/glad.h"
 #include "../geometry/Pos3F.h"
-#include "Renderable.h"
+#include "IRenderable.h"
 #include <vector>
 
 class Renderer
@@ -13,7 +13,7 @@ public:
 	void StartFrame();
 
 	void SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir);
-	void Render(const Renderable& obj);
+	void Render(const IRenderable& obj);
 	void FinalizeFrame();
 private:
 	GLuint vbo;

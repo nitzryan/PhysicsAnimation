@@ -1,11 +1,14 @@
 #pragma once
 
-#include "Renderable.h"
+// This will get deleted in a future version, keeping as a reference for now.
+// Render method is incorrect, should use the BufferWriter Class so that if buffer data needs to change, compilation fails
+
+#include "IRenderable.h"
 #include "../geometry/Pos3F.h"
 #include "../geometry/Vec3F.h"
 #include "ColorRGBA.h"
 
-class TestRenderable : public Renderable {
+class TestRenderable : public IRenderable {
 public:
 	TestRenderable() {}
 	
@@ -17,7 +20,7 @@ public:
 		return 24;
 	}
 
-	void Render(std::vector<float>& vbo, size_t vboLoc, std::vector<unsigned int>& ebo, size_t eboLoc) const override {
+	void Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, std::vector<unsigned int>& ebo, size_t eboLoc) const override {
 		auto WriteEbo = [&ebo, &vbo](size_t eboLoc, size_t indexCount, size_t vboLoc, Pos3F ul, Pos3F ur, Pos3F ll, Pos3F lr,
 			ColorRGBA c) {
 			ebo[eboLoc] = indexCount;
@@ -56,12 +59,12 @@ public:
 		Pos3F p6(0.5, 0.5, -0.5);
 		Pos3F p7(0.5, 0.5, 0.5);
 
-		WriteEbo(eboLoc, 0, vboLoc, p0, p4, p2, p6, ColorRGBA(.5,0,0,1));
-		WriteEbo(eboLoc + 6, 4, vboLoc + 40, p1, p5, p0, p4, ColorRGBA(0,.5,0,1));
-		WriteEbo(eboLoc + 12, 8, vboLoc + 40 * 2, p4, p5, p6, p7, ColorRGBA(0,0,.5,1));
-		WriteEbo(eboLoc + 18, 12, vboLoc + 40*3, p6, p2, p7, p3, ColorRGBA(.5,.5,0,1));
-		WriteEbo(eboLoc + 24, 16, vboLoc + 40*4, p1, p0, p3, p2, ColorRGBA(0.5, 0, 0.5, 1));
-		WriteEbo(eboLoc + 30, 20, vboLoc + 40*5, p5, p1, p7, p3, ColorRGBA(0,0.5,0.5,1));
+		WriteEbo(eboLoc, pointCount, vboLoc, p0, p4, p2, p6, ColorRGBA(.5,0,0,1));
+		WriteEbo(eboLoc + 6, pointCount + 4, vboLoc + 40, p1, p5, p0, p4, ColorRGBA(0,.5,0,1));
+		WriteEbo(eboLoc + 12, pointCount + 8, vboLoc + 40 * 2, p4, p5, p6, p7, ColorRGBA(0,0,.5,1));
+		WriteEbo(eboLoc + 18, pointCount + 12, vboLoc + 40*3, p6, p2, p7, p3, ColorRGBA(.5,.5,0,1));
+		WriteEbo(eboLoc + 24, pointCount + 16, vboLoc + 40*4, p1, p0, p3, p2, ColorRGBA(0.5, 0, 0.5, 1));
+		WriteEbo(eboLoc + 30, pointCount + 20, vboLoc + 40*5, p5, p1, p7, p3, ColorRGBA(0,0.5,0.5,1));
 	}
 private:
 };
