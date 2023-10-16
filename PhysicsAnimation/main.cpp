@@ -55,7 +55,7 @@ int main(int, char**) {
 
 
 	Renderer renderer = Renderer();
-	Camera camera(1, 1, Pos3F(0.1, 0.25, -3));
+	Camera camera(1, 1, Pos3F(0.1, 0.25, -5));
 	camera.SetAspect(screenDetails.width, screenDetails.height);
 
 	// Main Loop

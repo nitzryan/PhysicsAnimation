@@ -20,7 +20,7 @@ private:
 	GLuint vao;
 	GLuint ebo;
 	GLuint shaderProgram;
-	const int vertexSize = 7;
+	const int vertexSize = 10;
 	const int vboSize = 100000 * vertexSize;
 	const int indicesSize = 100000;
 	std::vector<float> vboContents;
@@ -30,7 +30,7 @@ private:
 
 	Pos3F cameraPos, cameraScale;
 	Vec3F cameraDir;
-	GLint posAttrib, colAttrib;
+	GLint posAttrib, colAttrib, normAttrib;
 	GLuint vertexShader, fragmentShader;
 };
 

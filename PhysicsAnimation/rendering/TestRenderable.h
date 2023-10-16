@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Renderable.h"
+#include "../geometry/Pos3F.h"
+#include "../geometry/Vec3F.h"
+#include "ColorRGBA.h"
 
 class TestRenderable : public Renderable {
 public:
@@ -11,76 +14,54 @@ public:
 	}
 
 	int NumPoints() const override {
-		return 8;
+		return 24;
 	}
 
 	void Render(std::vector<float>& vbo, size_t vboLoc, std::vector<unsigned int>& ebo, size_t eboLoc) const override {
-		for (int i = 0; i <= 1; i++) {
-			for (int j = 0; j <= 1; j++) {
-				for (int k = 0; k <= 1; k++) {
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7] = -0.5f + i;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 1] = -0.5f + j;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 2] = -0.5f + k;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 3] = 0.2f;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 4] = 0.6f;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 5] = 0.2f;
-					vbo[vboLoc + (4 * i + 2 * j + k) * 7 + 6] = 1.0f;
-				}
-			}
-		}
+		auto WriteEbo = [&ebo, &vbo](size_t eboLoc, size_t indexCount, size_t vboLoc, Pos3F ul, Pos3F ur, Pos3F ll, Pos3F lr,
+			ColorRGBA c) {
+			ebo[eboLoc] = indexCount;
+			ebo[eboLoc + 1] = indexCount + 3;
+			ebo[eboLoc + 2] = indexCount + 1;
+			ebo[eboLoc + 3] = indexCount;
+			ebo[eboLoc + 4] = indexCount + 2;
+			ebo[eboLoc + 5] = indexCount + 3;
 
-		auto WriteEbo = [&ebo](size_t eboLoc, int ul, int ur, int ll, int lr) {
-			ebo[eboLoc] = ul;
-			ebo[eboLoc + 1] = ur;
-			ebo[eboLoc + 2] = lr;
-			ebo[eboLoc + 3] = ul;
-			ebo[eboLoc + 4] = lr;
-			ebo[eboLoc + 5] = ll;
+			Vec3F v1 = ul.Subtract(ur);
+			Vec3F v2 = ul.Subtract(ll);
+			Vec3F norm = Vec3F::Cross(v2, v1);
+			norm.Normalize();
+
+			Pos3F ps[] = { ul, ur, ll, lr };
+			for (size_t i = 0; i < 4; i++) {
+				vbo[vboLoc + 0 + i * 10] = ps[i].x;
+				vbo[vboLoc + 1 + i * 10] = ps[i].y;
+				vbo[vboLoc + 2 + i * 10] = ps[i].z;
+				vbo[vboLoc + 3 + i * 10] = c.r;
+				vbo[vboLoc + 4 + i * 10] = c.g;
+				vbo[vboLoc + 5 + i * 10] = c.b;
+				vbo[vboLoc + 6 + i * 10] = c.a;
+				vbo[vboLoc + 7 + i * 10] = norm.x;
+				vbo[vboLoc + 8 + i * 10] = norm.y;
+				vbo[vboLoc + 9 + i * 10] = norm.z;
+			}
 		};
 
-		WriteEbo(eboLoc, 0, 4, 2, 6);
-		WriteEbo(eboLoc + 6, 1, 5, 0, 4);
-		WriteEbo(eboLoc + 12, 4, 5, 6, 7);
-		WriteEbo(eboLoc + 18, 6, 2, 7, 3);
-		WriteEbo(eboLoc + 24, 1, 0, 3, 2);
-		WriteEbo(eboLoc + 30, 5, 1, 7, 3);
+		Pos3F p0(-0.5, -0.5, -0.5);
+		Pos3F p1(-0.5, -0.5, 0.5);
+		Pos3F p2(-0.5, 0.5, -0.5);
+		Pos3F p3(-0.5, 0.5, 0.5);
+		Pos3F p4(0.5, -0.5, -0.5);
+		Pos3F p5(0.5, -0.5, 0.5);
+		Pos3F p6(0.5, 0.5, -0.5);
+		Pos3F p7(0.5, 0.5, 0.5);
 
-		//ebo[eboLoc] = vboLoc;
-		//ebo[eboLoc + 1] = vboLoc + 2;
-		//ebo[eboLoc + 2] = vboLoc + 4;
-		//ebo[eboLoc + 3] = vboLoc;
-		//ebo[eboLoc + 4] = vboLoc + 6;
-		//ebo[eboLoc + 5] = vboLoc + 4;
-		//ebo[eboLoc + 6] = vboLoc;
-		//ebo[eboLoc + 7] = vboLoc + 4;
-		//ebo[eboLoc + 8] = vboLoc + 5;
-		//ebo[eboLoc + 9] = vboLoc;
-		//ebo[eboLoc + 10] = vboLoc + 5;
-		//ebo[eboLoc + 11] = vboLoc + 1;
-		//ebo[eboLoc + 12] = vboLoc;
-		//ebo[eboLoc + 13] = vboLoc + 1;
-		//ebo[eboLoc + 14] = vboLoc + 2;
-		//ebo[eboLoc + 15] = vboLoc;
-		//ebo[eboLoc + 16] = vboLoc + 2;
-		//ebo[eboLoc + 17] = vboLoc + 3;
-		//ebo[eboLoc + 18] = vboLoc + 4;
-		//ebo[eboLoc + 19] = vboLoc + 6;
-		//ebo[eboLoc + 20] = vboLoc + 7;
-		//ebo[eboLoc + 21] = vboLoc + 4;
-		//ebo[eboLoc + 22] = vboLoc + 7;
-		//ebo[eboLoc + 23] = vboLoc + 5;
-		//ebo[eboLoc + 24] = vboLoc + 5;
-		//ebo[eboLoc + 25] = vboLoc + 1;
-		//ebo[eboLoc + 26] = vboLoc + 3;
-		//ebo[eboLoc + 27] = vboLoc + 5;
-		//ebo[eboLoc + 28] = vboLoc + 3;
-		//ebo[eboLoc + 29] = vboLoc + 7;
-		//ebo[eboLoc + 30] = vboLoc + 3;
-		//ebo[eboLoc + 31] = vboLoc + 2;
-		//ebo[eboLoc + 32] = vboLoc + 6;
-		//ebo[eboLoc + 33] = vboLoc + 3;
-		//ebo[eboLoc + 34] = vboLoc + 6;
-		//ebo[eboLoc + 35] = vboLoc + 7;
+		WriteEbo(eboLoc, 0, vboLoc, p0, p4, p2, p6, ColorRGBA(.5,0,0,1));
+		WriteEbo(eboLoc + 6, 4, vboLoc + 40, p1, p5, p0, p4, ColorRGBA(0,.5,0,1));
+		WriteEbo(eboLoc + 12, 8, vboLoc + 40 * 2, p4, p5, p6, p7, ColorRGBA(0,0,.5,1));
+		WriteEbo(eboLoc + 18, 12, vboLoc + 40*3, p6, p2, p7, p3, ColorRGBA(.5,.5,0,1));
+		WriteEbo(eboLoc + 24, 16, vboLoc + 40*4, p1, p0, p3, p2, ColorRGBA(0.5, 0, 0.5, 1));
+		WriteEbo(eboLoc + 30, 20, vboLoc + 40*5, p5, p1, p7, p3, ColorRGBA(0,0.5,0.5,1));
 	}
 private:
 };

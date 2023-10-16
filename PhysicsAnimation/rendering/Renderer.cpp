@@ -23,20 +23,45 @@ const GLchar* vertexSource =
 "#version 150 core\n"
 "in vec3 position;"
 "in vec4 inColor;"
+"in vec3 normal;"
 "out vec4 Color;"
 "uniform mat4 view;"
 "uniform mat4 proj;"
+"const vec3 inlightDir = normalize(vec3(-1,-1,-1));"
+"out vec3 normalOut;"
+"out vec3 pos;"
+"out vec3 eyePos;"
+"out vec3 lightDir;"
 "void main() {"
 " Color = inColor;"
-" gl_Position = proj * view * vec4(position, 1.0);"
+" gl_Position = view * vec4(position, 1.0);"
+" pos = gl_Position.xyz / gl_Position.w;"
+" vec4 norm4 = transpose(inverse(view)) * vec4(normal, 0.0);"
+" normalOut = norm4.xyz;"
+" lightDir = (view * vec4(inlightDir, 0)).xyz;"
+" gl_Position = proj * gl_Position;"
 "}";
 
 const GLchar* fragmentSource =
 "#version 150 core\n"
 "in vec4 Color;"
+"in vec3 normalOut;"
+"in vec3 pos;"
+"in vec3 eyePos;"
+"in vec3 lightDir;"
 "out vec4 outColor;"
+"const float ambient = .3;"
 "void main() {"
-" outColor = vec4(Color);" //(Red, Green, Blue, Alpha)
+" vec3 N = normalize(normalOut);" //Re-normalized the interpolated normals
+" vec3 diffuseC = Color.xyz*max(dot(lightDir,N),0.0);"
+" vec3 ambC = Color.xyz*ambient;"
+" vec3 reflectDir = reflect(-lightDir,N);"
+" reflectDir = normalize(reflectDir);"
+" vec3 viewDir = normalize(-pos);" //We know the eye is at 0,0
+" float spec = max(dot(reflectDir,viewDir),0.0);"
+" if (dot(lightDir,N) <= 0.0) spec = 0;"
+" vec3 specC = vec3(.8,.8,.8)*pow(spec,8);"
+" outColor = vec4(ambC+diffuseC+specC, Color.a);"
 "}";
 
 
@@ -81,10 +106,18 @@ Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1), cameraDir(0,0,-1)
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE,
 		vertexSize * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(colAttrib);
+
+	normAttrib = glGetAttribLocation(shaderProgram, "normal");
+	glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE,
+		vertexSize * sizeof(float), (void*)(7 * sizeof(float)));
+	glEnableVertexAttribArray(normAttrib);
+
 	glBindVertexArray(0); //Unbind the VAO so we don’t accidentally modify it
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -128,8 +161,7 @@ void Renderer::SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir)
 
 void Renderer::FinalizeFrame()
 {
-	
-
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(shaderProgram);
