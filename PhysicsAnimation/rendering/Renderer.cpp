@@ -67,7 +67,7 @@ const GLchar* fragmentSource =
 "}";
 
 
-Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1), cameraDir(0,0,-1)
+Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1), cameraDir(0,0,-1), upDir(0,1,0)
 {
 	// Create shader, temporary, should move to seperate class
 	// Load and COmpile Shaders
@@ -154,11 +154,12 @@ void Renderer::Render(const IRenderable& obj)
 	currentIndicesLoc += numIndices;
 }
 
-void Renderer::SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir)
+void Renderer::SetCamera(const Camera& camera)
 {
-	cameraPos = pos;
-	cameraScale = scale;
-	cameraDir = dir;
+	cameraPos = camera.GetPos();
+	cameraScale = camera.GetScale();
+	cameraDir = camera.GetLookDir();
+	upDir = camera.GetUpDir();
 }
 
 void Renderer::FinalizeFrame()
@@ -175,7 +176,7 @@ void Renderer::FinalizeFrame()
 	glm::mat4 view = glm::lookAt(
 		glm::vec3(cameraPos.x, cameraPos.y, cameraPos.z), 
 		glm::vec3(cameraPos.x + cameraDir.x, cameraPos.y + cameraDir.y, cameraPos.z + cameraDir.z), 
-		glm::vec3(0, 1, 0)
+		glm::vec3(upDir.x, upDir.y, upDir.z)
 	);
 	GLint uView = glGetUniformLocation(shaderProgram, "view");
 	glUniformMatrix4fv(uView, 1, GL_FALSE, glm::value_ptr(view));

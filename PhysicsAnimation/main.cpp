@@ -22,6 +22,7 @@ struct UserInput {
 	bool rightPressed = false;
 	bool upPressed = false;
 	bool downPressed = false;
+	bool lctrl = false;
 };
 
 int main(int, char**) {
@@ -88,6 +89,8 @@ int main(int, char**) {
 				input.downPressed = false;
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_UP)
 				input.upPressed = false;
+			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LCTRL)
+				input.lctrl = false;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LEFT)
 				input.leftPressed = true;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_RIGHT)
@@ -96,25 +99,45 @@ int main(int, char**) {
 				input.downPressed = true;
 			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_UP)
 				input.upPressed = true;
+			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LCTRL)
+				input.lctrl = true;
 		}
 
 		auto thisFrameTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<float>dt = thisFrameTime - lastFrameTime;
 
 		renderer.StartFrame();
-		renderer.SetCamera(camera.GetPos(), camera.GetViewportTrans(), Vec3F(0,0,1));
+		renderer.SetCamera(camera);
 		float frameTime = dt.count();
-		if (input.rightPressed) {
-			camera.Translate(Vec3F(-1, 0, 0), frameTime);
+		
+		if (input.lctrl) {
+			float w = 0.6;
+			if (input.rightPressed) {
+				camera.RotateY(w, frameTime);
+			}
+			if (input.leftPressed) {
+				camera.RotateY(-w, frameTime);
+			}
+			if (input.upPressed) {
+				camera.RotateX(w, frameTime);
+			}
+			if (input.downPressed) {
+				camera.RotateX(-w, frameTime);
+			}
 		}
-		if (input.leftPressed) {
-			camera.Translate(Vec3F(1, 0, 0), frameTime);
-		}
-		if (input.upPressed) {
-			camera.Translate(Vec3F(0, 1, 0), frameTime);
-		}
-		if (input.downPressed) {
-			camera.Translate(Vec3F(0, -1, 0), frameTime);
+		else {
+			if (input.rightPressed) {
+				camera.Translate(Vec3F(-1, 0, 0), frameTime);
+			}
+			if (input.leftPressed) {
+				camera.Translate(Vec3F(1, 0, 0), frameTime);
+			}
+			if (input.upPressed) {
+				camera.Translate(Vec3F(0, 0, 1), frameTime);
+			}
+			if (input.downPressed) {
+				camera.Translate(Vec3F(0, 0, -1), frameTime);
+			}
 		}
 
 		cloth.Update(frameTime);
