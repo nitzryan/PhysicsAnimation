@@ -150,6 +150,7 @@
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\TestCloth.cpp" />
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry\AxisBox3F.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="rendering\TestCloth.h" />
     <ClInclude Include="rendering\TestRenderable.h" />
     <ClInclude Include="rendering\BufferWriter.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="sdl\SDL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
