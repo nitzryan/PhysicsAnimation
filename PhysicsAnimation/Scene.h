@@ -8,7 +8,7 @@ public:
 	~Scene();
 	Rope ropes[];
 	bool update(float dt);
-	std::vector<IRenderable>GetRender();
+	std::vector<IRenderable*>GetRender();
 private:
 
 };
