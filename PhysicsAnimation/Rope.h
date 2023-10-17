@@ -7,17 +7,18 @@ class Rope{
 public:
 	// dir is unit vector that points in the direction of the rope
 	Rope(int length, float link_len, Pos3F start, Vec3F dir);
-	~Rope();
-	void Relax_Step(float dt);
-	void Render();
-	void Update(float dt, Vec3F gravity);
+	void Update_pos(float dt, Vec3F gravity);
+	void Update_vel(float dt);
 	int relax_setps = 1;
+	int get_length();
+	std::vector<Pos3F> position;
+	Pos3F get_base_pos();
 
 private:
 	int length;
 	float link_len;
-	std::vector<Pos3F> position;
 	std::vector<Pos3F> last_position;
 	std::vector<Vec3F> velocity;
 	float time;
+	Pos3F base_pos;
 };

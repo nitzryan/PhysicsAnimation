@@ -8,6 +8,9 @@ struct Pos3F {
     float y;
     float z;
 
+    Pos3F() {
+    }
+
     Pos3F(float xx, float yy, float zz) {
         x = xx;
         y = yy;
@@ -32,6 +35,12 @@ struct Pos3F {
         y += v.y;
         z += v.z;
     }
+
+    void Sub(const Vec3F& v) {
+		x -= v.x;
+		y -= v.y;
+		z -= v.z;
+	}
 
     Vec3F Subtract(const Pos3F& p) const {
         return Vec3F(x - p.x, y - p.y, z - p.z);

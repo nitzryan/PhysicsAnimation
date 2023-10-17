@@ -54,7 +54,7 @@
     <ClCompile Include="Rope.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Node.cpp">
+    <ClCompile Include="Cloth.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,7 +113,7 @@
     <ClInclude Include="Rope.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Node.h">
+    <ClInclude Include="Cloth.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
