@@ -3,6 +3,7 @@
 #include "../glad/glad.h"
 #include "../geometry/Pos3F.h"
 #include "IRenderable.h"
+#include "Camera.h"
 #include <vector>
 
 class Renderer
@@ -12,7 +13,7 @@ public:
 	~Renderer();
 	void StartFrame();
 
-	void SetCamera(const Pos3F& pos, const Pos3F& scale, const Vec3F& dir);
+	void SetCamera(const Camera& camera);
 	void Render(const IRenderable& obj);
 	void FinalizeFrame();
 private:
@@ -29,7 +30,7 @@ private:
 	size_t currentIndicesLoc;
 
 	Pos3F cameraPos, cameraScale;
-	Vec3F cameraDir;
+	Vec3F cameraDir, upDir;
 	GLint posAttrib, colAttrib, normAttrib;
 	GLuint vertexShader, fragmentShader;
 };
