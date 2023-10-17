@@ -51,6 +51,12 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Rope.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sdl\SDL.h">
@@ -102,6 +108,12 @@
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Rope.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>

@@ -147,9 +147,11 @@
   <ItemGroup>
     <ClCompile Include="glad\glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\TestCloth.cpp" />
+    <ClCompile Include="Rope.cpp" />
     <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +163,7 @@
     <ClInclude Include="glad\glad.h" />
     <ClInclude Include="glad\khrplatform.h" />
     <ClInclude Include="glm\glm.hpp" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\ColorRGBA.h" />
     <ClInclude Include="rendering\IRenderable.h" />
@@ -168,6 +171,7 @@
     <ClInclude Include="rendering\TestCloth.h" />
     <ClInclude Include="rendering\TestRenderable.h" />
     <ClInclude Include="rendering\BufferWriter.h" />
+    <ClInclude Include="Rope.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="sdl\SDL.h" />
   </ItemGroup>
