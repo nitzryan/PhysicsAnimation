@@ -8,6 +8,7 @@
 
 #include "rendering/TestRenderable.h"
 #include "rendering/TestCloth.h"
+#include "Cloth.h"
 
 struct ScreenDetails {
 	bool fullscreen;
@@ -65,7 +66,15 @@ int main(int, char**) {
 	bool quit = false;
 
 	//TestRenderable testRenderable = TestRenderable();
-	TestCloth cloth = TestCloth();
+	// test code to see if cloth works
+	std::vector<Rope> ropes;
+	for (int i = 0; i < 10; i++) {
+		Rope rope = Rope(10, .05, Pos3F(i*.05,0,0), Vec3F(0,-1,0));
+		ropes.push_back(rope);
+	}
+
+
+	Cloth cloth = Cloth(ropes, .05);
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
@@ -140,7 +149,7 @@ int main(int, char**) {
 			}
 		}
 
-		cloth.Update(frameTime);
+		cloth.Update(frameTime, Vec3F(0,-1,0));
 		renderer.Render(cloth);
 		renderer.FinalizeFrame();
 

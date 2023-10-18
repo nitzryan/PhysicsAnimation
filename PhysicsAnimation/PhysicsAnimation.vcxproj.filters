@@ -110,10 +110,10 @@
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Rope.h">
+    <ClInclude Include="Cloth.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Cloth.h">
+    <ClInclude Include="Rope.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
