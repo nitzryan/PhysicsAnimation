@@ -22,7 +22,7 @@ void Cloth::Update(float dt, Vec3F gravity) {
 	if(ropes.size() == 0) return;
 
 	ropes[0].Update_pos(dt, gravity);
-	ropes[1].Update_vel(dt);
+	ropes[0].Update_vel(dt);
 	for(int i = 1; i < ropes.size(); i++) {
 		ropes[i].Update_pos(dt, gravity);
 		// now need to do side relaxation
@@ -46,8 +46,8 @@ void Cloth::Update(float dt, Vec3F gravity) {
 	}
 
 	// update points
-	for (int i = 0; i < ropes[0].get_length(); i++) {
-		for (int j = 0; j < ropes.size(); j++) {
+	for (int j = 0; j < ropes[0].get_length(); j++) {
+		for (int i = 0; i < ropes.size(); i++) {
 			points[i * ropes.size() + j] = ropes[j].position[i];
 		}
 	}
