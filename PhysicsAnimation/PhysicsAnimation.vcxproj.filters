@@ -57,6 +57,9 @@
     <ClCompile Include="Cloth.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sdl\SDL.h">
@@ -116,5 +119,10 @@
     <ClInclude Include="Rope.h">
       <Filter>Scene</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sphere.h">
+      <Filter>Scene</Filter>
+    </None>
   </ItemGroup>
 </Project>

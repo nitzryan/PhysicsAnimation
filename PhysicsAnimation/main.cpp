@@ -8,7 +8,7 @@
 
 #include "rendering/TestRenderable.h"
 #include "rendering/TestCloth.h"
-#include "Cloth.h"
+#include "Scene.h"
 
 struct ScreenDetails {
 	bool fullscreen;
@@ -74,7 +74,9 @@ int main(int, char**) {
 	}
 
 
+	Scene scene = Scene(10,10,Vec3F(0,-10,0));
 	Cloth cloth = Cloth(ropes);
+	scene.add_cloth(cloth);
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
@@ -153,10 +155,9 @@ int main(int, char**) {
 		time_accum += frameTime;
 
 		if (time_accum > 0.005) {
-			cloth.Update(0.005, Vec3F(0, -1, 0));
-		}
-		else {
-			cloth.Update(time_accum, Vec3F(0, -1, 0));
+			scene.update(0.005);
+		} else {
+			scene.update(frameTime);
 		}
 		
 		

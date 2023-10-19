@@ -22,12 +22,13 @@ Cloth::Cloth(std::vector<Rope> ropes) : color(ColorRGBA(.5,.1,.2,1)) {
 	}
 }
 
-void Cloth::Update(float dt, Vec3F gravity) {
+void Cloth::Update(float dt, Vec3F gravity, std::vector<Sphere>& spheres) {
 	// skip over first nodes as they are base and do not move
 	if(ropes.size() == 0) return;
 
 	ropes[0].Update_pos(dt, gravity);
-	ropes[0].Update_vel(dt);
+	ropes[0].Update_vel(dt, spheres);
+
 	for(int i = 1; i < ropes.size(); i++) {
 		ropes[i].Update_pos(dt, gravity);
 		// now need to do side relaxation
@@ -47,7 +48,7 @@ void Cloth::Update(float dt, Vec3F gravity) {
 	}
 
 	for(int i = 0; i < ropes.size(); i++) {
-		ropes[i].Update_vel(dt);
+		ropes[i].Update_vel(dt, spheres);
 	}
 
 	// update points

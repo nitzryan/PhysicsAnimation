@@ -39,10 +39,22 @@ void Rope::Update_pos(float dt, Vec3F gravity) {
 }
 
 
-void Rope::Update_vel(float dt) {
+void Rope::Update_vel(float dt, std::vector<Sphere> &spheres) {
 	// update velocity
 	for (int i = 0; i < length; i++) {
-		velocity[i] = Vec3F::Mul(position[i].Subtract(last_position[i]), (1 / dt));
+		bool collides = false;
+		for (int j = 0; j < spheres.size(); j++) {
+			float radius = spheres[j].get_radius();
+			Pos3F center = spheres[j].get_center();
+			if (position[i].Subtract(center).GetMagnitude() < radius) {
+				Vec3F normal = position[i].Subtract(center).GetNormalized();
+				position[i] = Pos3F::Add(center, Vec3F::Mul(normal, radius + .001));
+				velocity[i] = Vec3F(0, 0, 0);
+			}
+		}
+		if (!collides) {
+			velocity[i] = Vec3F::Mul(position[i].Subtract(last_position[i]), (1 / dt));
+		}		
 	}
 }
 
