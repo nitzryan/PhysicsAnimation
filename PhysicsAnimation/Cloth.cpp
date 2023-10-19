@@ -1,9 +1,14 @@
 #include "Cloth.h"
 #include "./rendering/BufferWriter.h"
 
-Cloth::Cloth(std::vector<Rope> ropes, float side_link_len) : color(ColorRGBA(.5,.1,.2,1)) {
+Cloth::Cloth(std::vector<Rope> ropes) : color(ColorRGBA(.5,.1,.2,1)) {
 	this->ropes = ropes;
-	this->side_link_len = side_link_len;
+	if (ropes.size() > 1) {
+		this->side_link_len = ropes[0].get_base_pos().Subtract(ropes[1].get_base_pos()).GetMagnitude();
+	}
+	else {
+		this->side_link_len = 0;
+	}
 	this->height = ropes[0].get_length();
 	this->width = ropes.size();
 	for (int i = 0; i < ropes.size(); i++) {
@@ -27,7 +32,7 @@ void Cloth::Update(float dt, Vec3F gravity) {
 		ropes[i].Update_pos(dt, gravity);
 		// now need to do side relaxation
 		// len should be same for all ropes
-		for (int j = 0; j > relax_steps; j++) {
+		for (int j = 0; j < relax_steps; j++) {
 			for (int k = 1; k < ropes[i].get_length(); k++) {
 				Vec3F delta = ropes[i].position[k].Subtract(ropes[i - 1].position[k]);
 				float delta_length = delta.GetMagnitude();

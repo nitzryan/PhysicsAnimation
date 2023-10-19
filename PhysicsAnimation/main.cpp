@@ -69,17 +69,18 @@ int main(int, char**) {
 	// test code to see if cloth works
 	std::vector<Rope> ropes;
 	for (int i = 0; i < 10; i++) {
-		Rope rope = Rope(10, .05, Pos3F(i*.05,0,0), Vec3F(0,-1,0));
+		Rope rope = Rope(10, .05, Pos3F(i*.25,0,i*.25), Vec3F(.5,0,.5));
 		ropes.push_back(rope);
 	}
 
 
-	Cloth cloth = Cloth(ropes, .05);
+	Cloth cloth = Cloth(ropes);
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
 	
 	UserInput input;
+	float time_accum = 0;
 	while (!quit) {
 		// Keyboard events
 		while (SDL_PollEvent(&windowEvent)) {
@@ -148,8 +149,17 @@ int main(int, char**) {
 				camera.Translate(Vec3F(0, 0, -1), frameTime);
 			}
 		}
+		
+		time_accum += frameTime;
 
-		cloth.Update(frameTime, Vec3F(0,-1,0));
+		if (time_accum > 0.005) {
+			cloth.Update(0.005, Vec3F(0, -1, 0));
+		}
+		else {
+			cloth.Update(time_accum, Vec3F(0, -1, 0));
+		}
+		
+		
 		renderer.Render(cloth);
 		renderer.FinalizeFrame();
 

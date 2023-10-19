@@ -9,7 +9,7 @@ public:
 	Rope(int length, float link_len, Pos3F start, Vec3F dir);
 	void Update_pos(float dt, Vec3F gravity);
 	void Update_vel(float dt);
-	int relax_setps = 1;
+	int relax_setps = 10;
 	int get_length();
 	std::vector<Pos3F> position;
 	Pos3F get_base_pos();

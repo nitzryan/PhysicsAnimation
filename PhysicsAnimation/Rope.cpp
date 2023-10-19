@@ -18,6 +18,7 @@ void Rope::Update_pos(float dt, Vec3F gravity) {
 		last_position[i] = position[i];
 		velocity[i].Add(Vec3F::Mul(gravity, dt));
 		position[i].Add(Vec3F::Mul(velocity[i], dt));
+		
 	}
 
 	// relaxation steps
