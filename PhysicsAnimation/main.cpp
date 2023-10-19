@@ -74,9 +74,11 @@ int main(int, char**) {
 	}
 
 
-	Scene scene = Scene(10,10,Vec3F(0,-10,0));
+	Scene scene = Scene(1,10,Vec3F(0,-10,0), &renderer);
 	Cloth cloth = Cloth(ropes);
+	Sphere sphere = Sphere(Pos3F(.75, -3, .75), 2);
 	scene.add_cloth(cloth);
+	scene.add_sphere(sphere);
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
@@ -160,8 +162,7 @@ int main(int, char**) {
 			scene.update(frameTime);
 		}
 		
-		
-		renderer.Render(cloth);
+		scene.render();
 		renderer.FinalizeFrame();
 
 		lastFrameTime = thisFrameTime;

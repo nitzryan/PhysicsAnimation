@@ -4,7 +4,6 @@
 #include "./geometry/Vec3F.h"
 #include "rendering/ColorRGBA.h"
 #include "./rendering/IRenderable.h"
-#include "Cloth.h"
 
 class Sphere :
 	public IRenderable{

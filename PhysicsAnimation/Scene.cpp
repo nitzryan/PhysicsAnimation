@@ -3,11 +3,13 @@
 Scene::Scene() : gravity(Vec3F(0,-10,0)){
 	this->sub_steps = 1;
 	this->relax_steps = 1;
+	this->renderer = NULL;
 }
 
-Scene::Scene(int sub_steps, int relax_steps, Vec3F gravity) : gravity(gravity){
+Scene::Scene(int sub_steps, int relax_steps, Vec3F gravity, Renderer *renderer) : gravity(gravity){
 	this->sub_steps = sub_steps;
 	this->relax_steps = relax_steps;
+	this->renderer = renderer;
 }
 
 void Scene::update(float dt) {
@@ -40,4 +42,13 @@ void Scene::set_sub_steps(int sub_steps) {
 
 void Scene::set_relax_steps(int relax_steps) {
 	this->relax_steps = relax_steps;
+}
+
+void Scene::render() {
+	if (renderer != NULL) {
+		for (int i = 0; i < cloths.size(); i++) {
+			renderer->Render(cloths[i]);
+		}
+		
+	}
 }
