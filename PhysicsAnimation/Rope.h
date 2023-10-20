@@ -9,7 +9,7 @@ class Rope{
 public:
 	// dir is unit vector that points in the direction of the rope
 	Rope(int length, float link_len, Pos3F start, Vec3F dir);
-	void Update_pos(float dt, Vec3F gravity);
+	void Update_pos(float dt, Vec3F gravity, std::vector<SphereRenderable>& spheres);
 	void Update_vel(float dt, std::vector<SphereRenderable> &spheres);
 	int relax_setps = 10;
 	int get_length();

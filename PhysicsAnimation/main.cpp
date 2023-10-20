@@ -68,15 +68,15 @@ int main(int, char**) {
 	//TestRenderable testRenderable = TestRenderable();
 	// test code to see if cloth works
 	std::vector<Rope> ropes;
-	for (int i = 0; i < 10; i++) {
-		Rope rope = Rope(10, .05, Pos3F(i*.25,0,i*.25), Vec3F(.5,0,.5));
+	for (int i = 0; i < 30; i++) {
+		Rope rope = Rope(30, .02, Pos3F(i*.01,0,i*.01), Vec3F::Cross(Vec3F(.5,0,.5),Vec3F(0,-1,0)).GetNormalized());
 		ropes.push_back(rope);
 	}
 
 
 	Scene scene = Scene(1,10,Vec3F(0,-10,0), &renderer);
 	Cloth cloth = Cloth(ropes);
-	SphereRenderable sphere = SphereRenderable(Pos3F(.75, -3, .75), 2);
+	SphereRenderable sphere = SphereRenderable(Pos3F(.25, -0.4, .25), .25);
 	scene.add_cloth(cloth);
 	scene.add_sphere(sphere);
 

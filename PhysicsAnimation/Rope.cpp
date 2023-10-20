@@ -13,27 +13,60 @@ Rope::Rope(int length, float link_len, Pos3F start, Vec3F dir) {
 	}
 }
 
-void Rope::Update_pos(float dt, Vec3F gravity) {
+void Rope::Update_pos(float dt, Vec3F gravity, std::vector<SphereRenderable>& spheres) {
+
+	bool  * collides = new bool[length];
 	for(int i = 0; i < length; i++){
 		last_position[i] = position[i];
-		velocity[i].Add(Vec3F::Mul(gravity, dt));
-		position[i].Add(Vec3F::Mul(velocity[i], dt));
+		collides[i] = false;
+		for (int j = 0; j < spheres.size(); j++) {
+			float radius = spheres[j].get_radius();
+			Pos3F center = spheres[j].get_center();
+			if (position[i].Subtract(center).GetMagnitude() < radius) {
+				Vec3F normal = position[i].Subtract(center).GetNormalized();
+				Vec3F move = Vec3F::Mul(normal, radius + .01);
+				position[i] = Pos3F::Add(center, move);
+				velocity[i].Sub(Vec3F::Mul(normal,1.05));
+				collides[i] = true;
+			}
+		}
+		if (!collides[i]) {
+			velocity[i].Add(Vec3F::Mul(gravity, dt));
+			position[i].Add(Vec3F::Mul(velocity[i], dt));
+		}
+		
 		
 	}
 
 	// relaxation steps
 	for (int i = 0; i < relax_setps; i++) {
 		for (int j = 0; j < length - 1; j++) {
-			Vec3F delta = position[j+1].Subtract(position[j]);
+			Vec3F delta = position[j + 1].Subtract(position[j]);
 			float delta_length = delta.GetMagnitude();
 			float correction = delta_length - link_len;
 			Vec3F delta_norm = delta.GetNormalized();
-			position[j + 1].Sub(Vec3F::Mul(delta_norm, (correction/2)));
-			position[j].Add(Vec3F::Mul(delta_norm, (correction/2)));
+
+			if (collides[j] && collides[j + 1]) {
+				position[j + 1].Sub(Vec3F::Mul(delta_norm, (correction / 2)));
+				position[j].Add(Vec3F::Mul(delta_norm, (correction / 2)));
+			}
+			else if (collides[j]) {
+				position[j].Add(Vec3F::Mul(delta_norm, (correction)));
+			}
+			else if (collides[i]) {
+				position[j + 1].Sub(Vec3F::Mul(delta_norm, (correction)));
+
+			}
+			else {	
+				position[j + 1].Sub(Vec3F::Mul(delta_norm, (correction / 2)));
+				position[j].Add(Vec3F::Mul(delta_norm, (correction / 2)));
+			}
+			
 		}
 		// update base pos
 		position[0] = base_pos;
 	}
+	delete[] collides;
 
 	
 }
@@ -54,7 +87,7 @@ void Rope::Update_vel(float dt, std::vector<SphereRenderable> &spheres) {
 		}
 		if (!collides) {
 			velocity[i] = Vec3F::Mul(position[i].Subtract(last_position[i]), (1 / dt));
-		}		
+		}
 	}
 }
 

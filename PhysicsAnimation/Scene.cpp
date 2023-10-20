@@ -18,7 +18,7 @@ void Scene::update(float dt) {
 			cloths[j].Update(dt/sub_steps, gravity, spheres);
 		}
 		for (int j = 0; j < ropes.size(); j++) {
-			ropes[j].Update_pos(dt/sub_steps, gravity);
+			ropes[j].Update_pos(dt/sub_steps, gravity,spheres);
 			ropes[j].Update_vel(dt/sub_steps,spheres);
 		}
 	}

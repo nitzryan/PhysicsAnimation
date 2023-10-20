@@ -26,11 +26,11 @@ void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spher
 	// skip over first nodes as they are base and do not move
 	if(ropes.size() == 0) return;
 
-	ropes[0].Update_pos(dt, gravity);
+	ropes[0].Update_pos(dt, gravity,spheres);
 	ropes[0].Update_vel(dt, spheres);
 
 	for(int i = 1; i < ropes.size(); i++) {
-		ropes[i].Update_pos(dt, gravity);
+		ropes[i].Update_pos(dt, gravity,spheres);
 		// now need to do side relaxation
 		// len should be same for all ropes
 		for (int j = 0; j < relax_steps; j++) {
@@ -52,8 +52,8 @@ void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spher
 	}
 
 	// update points
-	for (int j = 0; j < ropes[0].get_length(); j++) {
-		for (int i = 0; i < ropes.size(); i++) {
+	for (int j = 0; j < ropes.size(); j++) {
+		for (int i = 0; i < ropes[0].get_length(); i++) {
 			points[i * ropes.size() + j] = ropes[j].position[i];
 		}
 	}
