@@ -5,18 +5,26 @@
 #include "rendering/ColorRGBA.h"
 #include "./rendering/IRenderable.h"
 
-class Sphere :
+class SphereRenderable :
 	public IRenderable{
 public:
-	Sphere(Pos3F center, float radius);
-	int NumIndices() const override { return 0; };
-	int NumPoints() const override { return 1; };
+	SphereRenderable(Pos3F center, float radius);
+	int NumIndices() const override { return 6 * thetaSlices * phiSlices; };
+	int NumPoints() const override { return (thetaSlices) * (phiSlices + 1); }; // for theta, start and end is same point
 	void Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, std::vector<unsigned int>& ebo, size_t eboLoc) const override;
 	//void Update(float dt); // porbbaly not needed as it will not move
 	float get_radius();
 	Pos3F get_center();
+	void SetThetaSlices(int s);
+	void SetPhiSlices(int s);
 private:
 	Pos3F center;
 	float radius;
 	ColorRGBA color;
+	int thetaSlices;
+	int phiSlices;
+	
+	std::vector<Pos3F> renderPoints;
+	std::vector<Vec3F> normals;
+	void GenerateRenderPoints();
 };

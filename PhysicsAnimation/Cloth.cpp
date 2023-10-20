@@ -22,7 +22,7 @@ Cloth::Cloth(std::vector<Rope> ropes) : color(ColorRGBA(.5,.1,.2,1)) {
 	}
 }
 
-void Cloth::Update(float dt, Vec3F gravity, std::vector<Sphere>& spheres) {
+void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spheres) {
 	// skip over first nodes as they are base and do not move
 	if(ropes.size() == 0) return;
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "Cloth.h"
 #include "Rope.h"
-#include "Sphere.h"
+#include "SphereRenderable.h"
 #include "rendering/IRenderable.h"
 #include "rendering/Renderer.h"
 
@@ -13,7 +13,7 @@ public:
 	void update(float dt);
 	void add_cloth(Cloth cloth);
 	void add_rope(Rope rope);
-	void add_sphere(Sphere sphere);
+	void add_sphere(SphereRenderable sphere);
 	void set_sub_steps(int sub_steps);
 	void set_relax_steps(int relax_steps);
 	void render();
@@ -24,7 +24,7 @@ private:
 	Vec3F gravity;
 	std::vector<Rope> ropes;
 	std::vector<Cloth> cloths;
-	std::vector<Sphere> spheres;
+	std::vector<SphereRenderable> spheres;
 
 };
 

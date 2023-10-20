@@ -39,7 +39,7 @@ void Rope::Update_pos(float dt, Vec3F gravity) {
 }
 
 
-void Rope::Update_vel(float dt, std::vector<Sphere> &spheres) {
+void Rope::Update_vel(float dt, std::vector<SphereRenderable> &spheres) {
 	// update velocity
 	for (int i = 0; i < length; i++) {
 		bool collides = false;

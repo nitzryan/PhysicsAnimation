@@ -76,7 +76,7 @@ int main(int, char**) {
 
 	Scene scene = Scene(1,10,Vec3F(0,-10,0), &renderer);
 	Cloth cloth = Cloth(ropes);
-	Sphere sphere = Sphere(Pos3F(.75, -3, .75), 2);
+	SphereRenderable sphere = SphereRenderable(Pos3F(.75, -3, .75), 2);
 	scene.add_cloth(cloth);
 	scene.add_sphere(sphere);
 

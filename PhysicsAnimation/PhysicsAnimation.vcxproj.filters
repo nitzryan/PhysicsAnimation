@@ -57,7 +57,7 @@
     <ClCompile Include="Cloth.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Sphere.cpp">
+    <ClCompile Include="SphereRenderable.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,7 +121,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sphere.h">
+    <None Include="SphereRenderable.h">
       <Filter>Scene</Filter>
     </None>
   </ItemGroup>

@@ -32,7 +32,7 @@ void Scene::add_rope(Rope rope) {
 	ropes.push_back(rope);
 }
 
-void Scene::add_sphere(Sphere sphere) {
+void Scene::add_sphere(SphereRenderable sphere) {
 	spheres.push_back(sphere);
 }
 
@@ -49,6 +49,8 @@ void Scene::render() {
 		for (int i = 0; i < cloths.size(); i++) {
 			renderer->Render(cloths[i]);
 		}
-		
+		for (auto& i : spheres) {
+			renderer->Render(i);
+		}
 	}
 }
