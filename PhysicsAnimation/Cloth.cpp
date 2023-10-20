@@ -54,7 +54,7 @@ void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spher
 	// update points
 	for (int j = 0; j < ropes.size(); j++) {
 		for (int i = 0; i < ropes[0].get_length(); i++) {
-			points[i * ropes.size() + j] = ropes[j].position[i];
+			points[i + j * ropes[0].get_length()] = ropes[j].position[i];
 		}
 	}
 }

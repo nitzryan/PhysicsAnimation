@@ -68,8 +68,8 @@ int main(int, char**) {
 	//TestRenderable testRenderable = TestRenderable();
 	// test code to see if cloth works
 	std::vector<Rope> ropes;
-	for (int i = 0; i < 30; i++) {
-		Rope rope = Rope(30, .02, Pos3F(i*.01,0,i*.01), Vec3F::Cross(Vec3F(.5,0,.5),Vec3F(0,-1,0)).GetNormalized());
+	for (int i = 0; i < 80; i++) {
+		Rope rope = Rope(25, .02, Pos3F(i*.01,0,i*.01), Vec3F::Cross(Vec3F(.5,0,.5),Vec3F(0,-1,0)).GetNormalized());
 		ropes.push_back(rope);
 	}
 
