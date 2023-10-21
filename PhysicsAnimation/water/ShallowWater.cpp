@@ -16,78 +16,129 @@ ShallowWater::ShallowWater(const Pos3F& pLower, const Pos3F& pUpper, int xBins, 
 			water.emplace_back(2 + 0.4 * sinf(i * PI / zBins) + 0.4 * cosf(j * PI / xBins), 0, 0);
 		}
 	}
+
+	sumHeights = 0;
+	for (auto& i : water) {
+		sumHeights += i.h;
+	}
 }
 
 void ShallowWater::Update(float dt)
 {
 	time += dt;
-	if (time < 0.01) {
-		return;
-	}
-	time -= 0.01;
 	dt = 0.01;
-
-	std::vector<WaterBin> midpointsX, midpointsZ;
+	while (time >= 0.01) {
+		time -= 0.01;
 	
-	// Create midpoints bins
-	midpointsX.reserve((xBins - 1) * zBins);
-	for (int i = 0; i < zBins; i++) {
-		for (int j = 0; j < xBins - 1; j++) {
-			int idx = i * xBins + j;
-			int idxr = idx + 1;
-			midpointsX.emplace_back(water[idx], water[idxr], true, dx);
+		std::vector<WaterBin> midpointsX, midpointsZ;
+	
+		// Create midpoints bins
+		midpointsX.reserve((xBins - 1) * zBins);
+		for (int i = 0; i < zBins; i++) {
+			for (int j = 0; j < xBins - 1; j++) {
+				int idx = i * xBins + j;
+				int idxr = idx + 1;
+				midpointsX.emplace_back(water[idx], water[idxr], true, dx);
+			}
 		}
-	}
 
-	midpointsZ.reserve(xBins * (zBins - 1));
-	for (int i = 0; i < zBins - 1; i++) {
-		for (int j = 0; j < xBins; j++) {
-			int idx = i * xBins + j;
-			int idxd = idx + xBins;
-			midpointsZ.emplace_back(water[idx], water[idxd], false, dz);
+		midpointsZ.reserve(xBins * (zBins - 1));
+		for (int i = 0; i < zBins - 1; i++) {
+			for (int j = 0; j < xBins; j++) {
+				int idx = i * xBins + j;
+				int idxd = idx + xBins;
+				midpointsZ.emplace_back(water[idx], water[idxd], false, dz);
+			}
 		}
-	}
 
-	// Update With half time step
-	for (auto& i : midpointsX) {
-		i.Step(dt / 2);
-	}
-	for (auto& i : midpointsZ) {
-		i.Step(dt / 2);
-	}
-
-	// Update derivatives in non-midpoints
-	for (auto& i : water) {
-		i.dh = 0;
-		i.dhu = 0;
-		i.dhv = 0;
-	}
-	for (int i = 0; i < zBins; i++) {
-		for (int j = 1; j < xBins - 1; j++) {
-			int idx = j + i * (xBins - 1);
-			int idxl = idx - 1;
-			int idxw = j + i * xBins;
-
-			water[idxw].dh -= (midpointsX[idx].hu - midpointsX[idxl].hu) / dx;
-			water[idxw].dhu -= (midpointsX[idx].GetXTerm() - midpointsX[idxl].GetXTerm()) / dx;
-			water[idxw].dhv -= (midpointsX[idx].GetXZTerm() - midpointsX[idxl].GetXZTerm()) / dx;
+		// Update With half time step
+		for (auto& i : midpointsX) {
+			i.Step(dt / 2, 1);
 		}
-	}
-	for (int i = 1; i < zBins - 1; i++) {
-		for (int j = 0; j < xBins; j++) {
-			int idx = j + i * xBins;
-			int idxu = idx - xBins;
-			int idxw = j + i * xBins;
-
-			water[idxw].dh -= (midpointsZ[idx].hv - midpointsZ[idxu].hv) / dz;
-			water[idxw].dhu -= (midpointsZ[idx].GetXZTerm() - midpointsZ[idxu].GetXZTerm()) / dz;
-			water[idxw].dhv -= (midpointsZ[idx].GetZTerm() - midpointsZ[idxu].GetZTerm()) / dz;
+		for (auto& i : midpointsZ) {
+			i.Step(dt / 2, 1);
 		}
-	}
 
-	// Update with full step
-	for (auto& i : water) {
-		i.Step(dt);
+		// Update derivatives in non-midpoints
+		for (auto& i : water) {
+			i.dh = 0;
+			i.dhu = 0;
+			i.dhv = 0;
+		}
+		for (int i = 0; i < zBins; i++) {
+			for (int j = 1; j < xBins - 1; j++) {
+				int idx = j + i * (xBins - 1);
+				int idxl = idx - 1;
+				int idxw = j + i * xBins;
+
+				water[idxw].dh -= (midpointsX[idx].hu - midpointsX[idxl].hu) / dx;
+				water[idxw].dhu -= (midpointsX[idx].GetXTerm() - midpointsX[idxl].GetXTerm()) / dx;
+				water[idxw].dhv -= (midpointsX[idx].GetXZTerm() - midpointsX[idxl].GetXZTerm()) / dx;
+			}
+		}
+		for (int i = 1; i < zBins - 1; i++) {
+			for (int j = 0; j < xBins; j++) {
+				int idx = j + i * xBins;
+				int idxu = idx - xBins;
+				int idxw = j + i * xBins;
+
+				water[idxw].dh -= (midpointsZ[idx].hv - midpointsZ[idxu].hv) / dz;
+				water[idxw].dhu -= (midpointsZ[idx].GetXZTerm() - midpointsZ[idxu].GetXZTerm()) / dz;
+				water[idxw].dhv -= (midpointsZ[idx].GetZTerm() - midpointsZ[idxu].GetZTerm()) / dz;
+			}
+		}
+
+		// Update All points not along edge
+		for (size_t i = 1; i < zBins - 1; i++) {
+			for (size_t j = 1; j < xBins - 1; j++) {
+				water[i * xBins + j].Step(dt);
+			}
+		}
+		// For edges, set reflective on edge, that calculate non-edge step
+		// Top
+		for (size_t j = 1; j < xBins - 1; j++) {
+			water[j].h = (water[j + xBins].h + water[j].h) / 2;
+			water[j].hu = -water[j + xBins].hu;
+			water[j].hv = -water[j + xBins].hv;
+			water[j].Step(dt);
+		}
+		// Bot
+		for (size_t j = 1; j < xBins - 1; j++) {
+			size_t idx = (zBins - 1) * xBins + j;
+			water[idx].h = (water[idx - xBins].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx - xBins].hu;
+			water[idx].hv = -water[idx - xBins].hv;
+			water[idx].Step(dt);
+		}
+		// Left
+		for (size_t i = 1; i < zBins - 1; i++) {
+			size_t idx = xBins * i;
+			water[idx].h = (water[idx + 1].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx + 1].hu;
+			water[idx].hv = -water[idx + 1].hv;
+			water[idx].Step(dt);
+		}
+		// Right
+		for (size_t i = 1; i < zBins - 1; i++) {
+			size_t idx = xBins * (i + 1) - 1;
+			water[idx].h = (water[idx - 1].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx - 1].hu;
+			water[idx].hv = -water[idx - 1].hv;
+			water[idx].Step(dt);
+		}
+
+		// Set corners reflectively
+		water[0] = WaterBin(water[1], water[xBins]);
+		water[xBins - 1] = WaterBin(water[xBins - 2], water[2 * xBins - 1]);
+		water[water.size() - xBins] = WaterBin(water[water.size() - 2 * xBins], water[water.size() - xBins + 1]);
+		water[water.size() - 1] = WaterBin(water[water.size() - 2], water[water.size() - xBins - 1]);
+	
+		// Trend all heights towards the steady state height
+		float aveHeight = sumHeights / (water.size());
+		const float heightFactor = 0.005;
+		for (auto& i : water) {
+			i.h += dt * (aveHeight - i.h) * heightFactor;
+		}
 	}
 }
 

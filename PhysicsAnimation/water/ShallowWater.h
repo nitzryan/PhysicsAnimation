@@ -3,7 +3,7 @@
 #include "../geometry/Pos3F.h"
 #include <vector>
 
-#define GRAVITY 10
+#define GRAVITY 2
 
 class ShallowWater :
     public IRenderable
@@ -45,6 +45,24 @@ private:
 				dhv = -(b2.GetZTerm() - b1.GetZTerm()) / binStep;
 			}
 		}
+		WaterBin(const WaterBin& b1, const WaterBin& b2) {
+			h = (b1.h + b2.h) / 2;
+			hu = -(b1.hu + b2.hu) / 2;
+			hv = -(b1.hv + b2.hv) / 2;
+			dh = 0;
+			dhu = 0;
+			dhv = 0;
+		}
+
+		WaterBin operator=(const WaterBin& w) {
+			this->h = w.h;
+			this->hu = w.hu;
+			this->hv = w.hv;
+			this->dh = w.dh;
+			this->dhu = w.dhu;
+			this->dhv = w.dhv;
+			return *this;
+		}
 
 		float GetXTerm() const {
 			return hu * hu / h + 0.5 * GRAVITY * h * h;
@@ -55,14 +73,17 @@ private:
 		float GetXZTerm() const {
 			return hu * hv / h;
 		}
-		void Step(float dt, float dampen = 0.6) {
+		void Step(float dt, float dampen = 0.8f) {
 			dt *= dampen;
 			h += dh * dt;
 			hu += dhu * dt;
 			hv += dhv * dt;
+			hu -= (hu * dt * (1 - dampen));
+			hv -= (hu * dt * (1 - dampen));
 		}
 	};
 	
 	std::vector<WaterBin> water; // Ordered in rows seperated by dx
+	float sumHeights;
 };
 
