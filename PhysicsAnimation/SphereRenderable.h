@@ -13,8 +13,8 @@ public:
 	int NumPoints() const override { return (thetaSlices) * (phiSlices + 1); }; // for theta, start and end is same point
 	void Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, std::vector<unsigned int>& ebo, size_t eboLoc) const override;
 	//void Update(float dt); // porbbaly not needed as it will not move
-	float get_radius();
-	Pos3F get_center();
+	float get_radius() const;
+	Pos3F get_center() const;
 	void SetThetaSlices(int s);
 	void SetPhiSlices(int s);
 private:

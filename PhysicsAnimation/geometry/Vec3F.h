@@ -25,6 +25,15 @@ struct Vec3F {
         z += v.z;
     }
 
+    Vec3F operator+(const Vec3F& v) const {
+        return Vec3F::Add(*this, v);
+    }
+
+    Vec3F operator+=(const Vec3F& v) {
+        Add(v);
+        return *this;
+    }
+
     static Vec3F Sub(const Vec3F& v1, const Vec3F& v2) {
         Vec3F v = v1;
         v.Sub(v2);
@@ -33,7 +42,7 @@ struct Vec3F {
     void Sub(const Vec3F& v) {
         x -= v.x;
         y -= v.y;
-        z -= z;
+        z -= v.z;
     }
 
     static Vec3F Mul(const Vec3F& v, float m) {

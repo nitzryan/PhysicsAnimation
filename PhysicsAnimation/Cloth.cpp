@@ -22,15 +22,25 @@ Cloth::Cloth(std::vector<Rope> ropes) : color(ColorRGBA(.5,.1,.2,1)) {
 	}
 }
 
-void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spheres) {
+void Cloth::Update(float dt, Vec3F gravity, Vec3F wind, const std::vector<SphereRenderable>& spheres) {
 	// skip over first nodes as they are base and do not move
 	if(ropes.size() == 0) return;
 
-	ropes[0].Update_pos(dt, gravity,spheres);
+	// Apply Wind first so that velocity is unmodified by gravity
+	for (int i = 0; i < ropes.size() - 1; i++) {
+		ropes[i].ApplyWind(dt, wind, ropes[i + 1]);
+	}
+
+	// Apply Gravity
+	for (auto& i : ropes) {
+		i.ApplyGravity(dt, gravity);
+	}
+
+	ropes[0].Update_pos(dt, spheres);
 	ropes[0].Update_vel(dt, spheres);
 
 	for(int i = 1; i < ropes.size(); i++) {
-		ropes[i].Update_pos(dt, gravity,spheres);
+		ropes[i].Update_pos(dt, spheres);
 		// now need to do side relaxation
 		// len should be same for all ropes
 		for (int j = 0; j < relax_steps; j++) {
@@ -59,7 +69,7 @@ void Cloth::Update(float dt, Vec3F gravity, std::vector<SphereRenderable>& spher
 	}
 }
 
-float Cloth::get_side_len() {
+float Cloth::get_side_len() const {
 	return side_link_len;
 }
 

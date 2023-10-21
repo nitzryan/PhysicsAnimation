@@ -12,11 +12,11 @@ SphereRenderable::SphereRenderable(Pos3F center, float radius) : color(ColorRGBA
 	GenerateRenderPoints();
 }
 
-float SphereRenderable::get_radius() {
+float SphereRenderable::get_radius() const {
 	return radius;
 }
 
-Pos3F SphereRenderable::get_center() {
+Pos3F SphereRenderable::get_center() const {
 	return center;
 }
 
