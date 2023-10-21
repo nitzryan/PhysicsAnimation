@@ -8,6 +8,12 @@ struct Vec3F {
     float y;
     float z;
 
+    Vec3F() {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
+
     Vec3F(float xx, float yy, float zz) {
         x = xx;
         y = yy;
@@ -23,6 +29,10 @@ struct Vec3F {
         x += v.x;
         y += v.y;
         z += v.z;
+    }
+
+    Vec3F operator+(const Vec3F& v) const {
+        return Add(v, *this);
     }
 
     static Vec3F Sub(const Vec3F& v1, const Vec3F& v2) {

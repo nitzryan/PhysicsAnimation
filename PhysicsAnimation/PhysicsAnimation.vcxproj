@@ -154,6 +154,7 @@
     <ClCompile Include="Rope.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SphereRenderable.cpp" />
+    <ClCompile Include="water\ShallowWater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cloth.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Rope.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="sdl\SDL.h" />
+    <ClInclude Include="water\ShallowWater.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SphereRenderable.h" />

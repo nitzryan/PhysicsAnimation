@@ -23,29 +23,46 @@ private:
 	
 	struct WaterBin {
 		float h;
-		float hx;
-		float hz;
-		float oldH;
-		float oldHx;
-		float oldHz;
+		float hu;
+		float hv;
 		float dh;
-		float dhx;
-		float dhz;
+		float dhu;
+		float dhv;
 
-		WaterBin(float h, float hx, float hz) : h(h), hx(hx), hz(hz), dh(0), dhx(0), dhz(0) {}
+		WaterBin(float h, float hu, float hv) : h(h), hu(hu), hv(hv), dh(0), dhu(0), dhv(0) {}
+		WaterBin(const WaterBin& b1, const WaterBin& b2, bool dirX, float binStep) {
+			h = (b1.h + b2.h) / 2;
+			hu = (b1.hu + b2.hu) / 2;
+			hv = (b1.hv + b2.hv) / 2;
+			if (dirX) {
+				dh = -(b2.hu - b1.hu) / binStep;
+				dhu = -(b2.GetXTerm() - b1.GetXTerm()) / binStep;
+				dhv = -(b2.GetXZTerm() - b1.GetXZTerm()) / binStep;
+			}
+			else {
+				dh = -(b2.hv - b1.hv) / binStep;
+				dhu = -(b2.GetXZTerm() - b1.GetXZTerm()) / binStep;
+				dhv = -(b2.GetZTerm() - b1.GetZTerm()) / binStep;
+			}
+		}
+
 		float GetXTerm() const {
-			return hx * hx / h + 0.5 * GRAVITY * h * h;
+			return hu * hu / h + 0.5 * GRAVITY * h * h;
 		}
 		float GetZTerm() const {
-			return hz * hz / h + 0.5 * GRAVITY * h * h;
+			return hv * hv / h + 0.5 * GRAVITY * h * h;
 		}
 		float GetXZTerm() const {
-			return hx * hz / h;
+			return hu * hv / h;
+		}
+		void Step(float dt, float dampen = 0.6) {
+			dt *= dampen;
+			h += dh * dt;
+			hu += dhu * dt;
+			hv += dhv * dt;
 		}
 	};
 	
 	std::vector<WaterBin> water; // Ordered in rows seperated by dx
-
-	void UpdateDerivatives();
 };
 

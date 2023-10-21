@@ -31,6 +31,9 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{c848aa6d-734d-45ce-a0b7-20d5d7ff1d96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="water">
+      <UniqueIdentifier>{c57c8269-93a3-4863-8fc2-58614aa1d120}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="SphereRenderable.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="water\ShallowWater.cpp">
+      <Filter>water</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="Rope.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="water\ShallowWater.h">
+      <Filter>water</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
