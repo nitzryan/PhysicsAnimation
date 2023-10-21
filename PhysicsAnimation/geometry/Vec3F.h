@@ -8,6 +8,12 @@ struct Vec3F {
     float y;
     float z;
 
+    Vec3F() {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
+
     Vec3F(float xx, float yy, float zz) {
         x = xx;
         y = yy;

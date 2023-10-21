@@ -50,7 +50,11 @@ struct Pos3F {
     }
 
     Vec3F operator-(const Pos3F& p) const {
+<<<<<<< HEAD
         return Subtract(p);
+=======
+        return this->Subtract(p);
+>>>>>>> FluidSim2
     }
 };
 

@@ -6,9 +6,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "rendering/TestRenderable.h"
-#include "rendering/TestCloth.h"
-#include "Scene.h"
+#include "water/ShallowWater.h"
 
 struct ScreenDetails {
 	bool fullscreen;
@@ -58,8 +56,10 @@ int main(int, char**) {
 
 
 	Renderer renderer = Renderer();
-	Camera camera(1, 1, Pos3F(0.1, 0.25, -5));
+	Camera camera(1, 1, Pos3F(1, 5, 6), Vec3F(0, -1, -2));
 	camera.SetAspect(screenDetails.width, screenDetails.height);
+
+	ShallowWater water = ShallowWater(Pos3F(0, 0, 0), Pos3F(2, 2, 2), 25, 25, 0.1);
 
 	// Main Loop
 	SDL_Event windowEvent;
@@ -156,13 +156,9 @@ int main(int, char**) {
 		
 		time_accum += frameTime;
 
-		if (time_accum > 0.005) {
-			scene.update(0.005);
-		} else {
-			scene.update(frameTime);
-		}
-		
-		scene.render();
+		water.Update(frameTime);
+		renderer.Render(water);
+
 		renderer.FinalizeFrame();
 
 		lastFrameTime = thisFrameTime;

@@ -13,114 +13,133 @@ ShallowWater::ShallowWater(const Pos3F& pLower, const Pos3F& pUpper, int xBins, 
 	water.reserve(xBins * zBins);
 	for (size_t i = 0; i < zBins; i++) {
 		for (size_t j = 0; j < xBins; j++) {
-			water.emplace_back(2 + 0.2 * sinf(i * PI / zBins) + 0.2 * cosf(j * PI / xBins), 0, 0);
+			water.emplace_back(2 + 0.4 * sinf(i * PI / zBins) + 0.4 * cosf(j * PI / xBins), 0, 0);
 		}
+	}
+
+	sumHeights = 0;
+	for (auto& i : water) {
+		sumHeights += i.h;
 	}
 }
 
 void ShallowWater::Update(float dt)
 {
 	time += dt;
-	if (time < 0.01) {
-		return;
-	}
-	time -= 0.01;
 	dt = 0.01;
+	while (time >= 0.01) {
+		time -= 0.01;
+	
+		std::vector<WaterBin> midpointsX, midpointsZ;
+	
+		// Create midpoints bins
+		midpointsX.reserve((xBins - 1) * zBins);
+		for (int i = 0; i < zBins; i++) {
+			for (int j = 0; j < xBins - 1; j++) {
+				int idx = i * xBins + j;
+				int idxr = idx + 1;
+				midpointsX.emplace_back(water[idx], water[idxr], true, dx);
+			}
+		}
 
-	// Calculate midpoints and momentums
-	std::vector<float> hMidX, hMidZ, dhMidDt, dhxdt, dhzdt, hxMidX, hzMidX, hxMidZ, hzMidZ;
-	size_t midSize = (xBins - 1) * (zBins - 1);
-	hMidX.reserve(midSize);
-	hMidZ.reserve(midSize);
-	dhMidDt.reserve(midSize);
-	dhxdt.reserve(midSize);
-	dhzdt.reserve(midSize);
-	hxMidX.reserve(midSize);
-	hzMidX.reserve(midSize);
-	hxMidZ.reserve(midSize);
-	hzMidZ.reserve(midSize);
+		midpointsZ.reserve(xBins * (zBins - 1));
+		for (int i = 0; i < zBins - 1; i++) {
+			for (int j = 0; j < xBins; j++) {
+				int idx = i * xBins + j;
+				int idxd = idx + xBins;
+				midpointsZ.emplace_back(water[idx], water[idxd], false, dz);
+			}
+		}
 
-	// Get Midpoints
-	for (size_t i = 0; i < zBins - 1; i++) {
-		for (size_t j = 0; j < xBins - 1; j++) {
-			size_t idx = i * xBins + j;
-			size_t idxRight = idx + 1;
-			size_t idxDown = idx + xBins;
-			hMidX.push_back((water[idx].h + water[idxRight].h) / 2);
-			hMidZ.push_back((water[idx].h + water[idxDown].h) / 2);
-			hxMidX.push_back((water[idx].hx + water[idxRight].hx) / 2);
-			hzMidX.push_back((water[idx].hz + water[idxRight].hz) / 2);
-			hxMidZ.push_back((water[idx].hx + water[idxDown].hx) / 2);
-			hzMidZ.push_back((water[idx].hz + water[idxDown].hz) / 2);
+		// Update With half time step
+		for (auto& i : midpointsX) {
+			i.Step(dt / 2, 1);
+		}
+		for (auto& i : midpointsZ) {
+			i.Step(dt / 2, 1);
+		}
 
-			float dhudx_mid = (water[idx].h - water[idxRight].h) / dx;
-			float dhvdz_mid = (water[idx].h - water[idxDown].h) / dz;
-			dhMidDt.push_back(-dhudx_mid - dhvdz_mid);
+		// Update derivatives in non-midpoints
+		for (auto& i : water) {
+			i.dh = 0;
+			i.dhu = 0;
+			i.dhv = 0;
+		}
+		for (int i = 0; i < zBins; i++) {
+			for (int j = 1; j < xBins - 1; j++) {
+				int idx = j + i * (xBins - 1);
+				int idxl = idx - 1;
+				int idxw = j + i * xBins;
 
-			// Compute dhxdt
-			float hx, hxRight, hxDown, hz, hzRight, hzDown;
-			hx = water[idx].hx;
-			hz = water[idx].hz;
-			hxRight = water[idxRight].hx;
-			hzRight = water[idxRight].hz;
-			hxDown = water[idxDown].hx;
-			hzDown = water[idxDown].hz;
-			float h, hRight, hDown;
-			h = water[idx].h;
-			hRight = water[idxRight].h;
-			hDown = water[idxDown].h;
-			float dhu2dx_mid = 0.5 * (hxRight * hxRight / hRight - hx * hx / h) / dx;
-			float dgh2dx_mid = GRAVITY * (hRight * hRight - h * h) / dx;
-			float dhuvdz_mid = (hxDown * hzDown / hDown - hx * hz / h) / dz;
-			dhxdt.push_back(-dhu2dx_mid - dgh2dx_mid - dhuvdz_mid);
-			float dhv2dz_mid = 0.5 * (hzDown * hzDown / hDown - hz * hz / h) / dz;
-			float dgh2dz_mid = GRAVITY * (hDown * hDown - h * h) / dz;
-			float dhuvdx_mid = (hxRight * hzRight / hRight - hx * hz / h) / dx;
-			dhzdt.push_back(-dhv2dz_mid - dgh2dz_mid - dhuvdx_mid);
+				water[idxw].dh -= (midpointsX[idx].hu - midpointsX[idxl].hu) / dx;
+				water[idxw].dhu -= (midpointsX[idx].GetXTerm() - midpointsX[idxl].GetXTerm()) / dx;
+				water[idxw].dhv -= (midpointsX[idx].GetXZTerm() - midpointsX[idxl].GetXZTerm()) / dx;
+			}
+		}
+		for (int i = 1; i < zBins - 1; i++) {
+			for (int j = 0; j < xBins; j++) {
+				int idx = j + i * xBins;
+				int idxu = idx - xBins;
+				int idxw = j + i * xBins;
+
+				water[idxw].dh -= (midpointsZ[idx].hv - midpointsZ[idxu].hv) / dz;
+				water[idxw].dhu -= (midpointsZ[idx].GetXZTerm() - midpointsZ[idxu].GetXZTerm()) / dz;
+				water[idxw].dhv -= (midpointsZ[idx].GetZTerm() - midpointsZ[idxu].GetZTerm()) / dz;
+			}
+		}
+
+		// Update All points not along edge
+		for (size_t i = 1; i < zBins - 1; i++) {
+			for (size_t j = 1; j < xBins - 1; j++) {
+				water[i * xBins + j].Step(dt);
+			}
+		}
+		// For edges, set reflective on edge, that calculate non-edge step
+		// Top
+		for (size_t j = 1; j < xBins - 1; j++) {
+			water[j].h = (water[j + xBins].h + water[j].h) / 2;
+			water[j].hu = -water[j + xBins].hu;
+			water[j].hv = -water[j + xBins].hv;
+			water[j].Step(dt);
+		}
+		// Bot
+		for (size_t j = 1; j < xBins - 1; j++) {
+			size_t idx = (zBins - 1) * xBins + j;
+			water[idx].h = (water[idx - xBins].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx - xBins].hu;
+			water[idx].hv = -water[idx - xBins].hv;
+			water[idx].Step(dt);
+		}
+		// Left
+		for (size_t i = 1; i < zBins - 1; i++) {
+			size_t idx = xBins * i;
+			water[idx].h = (water[idx + 1].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx + 1].hu;
+			water[idx].hv = -water[idx + 1].hv;
+			water[idx].Step(dt);
+		}
+		// Right
+		for (size_t i = 1; i < zBins - 1; i++) {
+			size_t idx = xBins * (i + 1) - 1;
+			water[idx].h = (water[idx - 1].h + water[idx].h) / 2;
+			water[idx].hu = -water[idx - 1].hu;
+			water[idx].hv = -water[idx - 1].hv;
+			water[idx].Step(dt);
+		}
+
+		// Set corners reflectively
+		water[0] = WaterBin(water[1], water[xBins]);
+		water[xBins - 1] = WaterBin(water[xBins - 2], water[2 * xBins - 1]);
+		water[water.size() - xBins] = WaterBin(water[water.size() - 2 * xBins], water[water.size() - xBins + 1]);
+		water[water.size() - 1] = WaterBin(water[water.size() - 2], water[water.size() - xBins - 1]);
+	
+		// Trend all heights towards the steady state height
+		float aveHeight = sumHeights / (water.size());
+		const float heightFactor = 0.005;
+		for (auto& i : water) {
+			i.h += dt * (aveHeight - i.h) * heightFactor;
 		}
 	}
-
-	// Update for 0.5 timesteps
-	for (size_t i = 0; i < hMidX.size(); i++) {
-		hMidX[i] += dhMidDt[i] * 0.5 * dt;
-		hxMidX[i] += dh
-	}
-
-	//// Calculate Midpoint
-	//for (auto& i : water) {
-	//	i.oldH = i.h;
-	//	i.oldHx = i.hx;
-	//	i.oldHz = i.hz;
-	//}
-
-	//UpdateDerivatives();
-
-	//for (auto& i : water) {
-	//	i.h += 0.5 * dt * i.dh;
-	//	i.hx += 0.5 * dt * i.dhx;
-	//	i.hz += 0.5 * dt * i.dhz;
-	//}
-
-	//UpdateDerivatives();
-
-	//// Apply midpoint derivitives to old position
-	//const float dampen = 0.8;
-	//for (auto& i : water) {
-	//	i.dh *= dampen;
-	//	i.dhx *= dampen;
-	//	i.dhz *= dampen;
-
-	//	i.h = i.oldH + dt * i.dh;
-	//	i.hx = i.oldHx + dt * i.dhx;
-	//	i.hz = i.oldHz + dt * i.dhz;
-	//}
-
-	//// Output energy
-	//float energy = 0;
-	//for (auto& i : water) {
-	//	energy += i.h * i.h;
-	//}
-	//std::cout << "Total Energy: " << energy << std::endl;
 }
 
 int ShallowWater::NumIndices() const
@@ -223,70 +242,6 @@ void ShallowWater::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCo
 			ebo[eboLoc + 4] = (i + 1) * xWidth + j + 1 + pointCount;
 			ebo[eboLoc + 5] = i * xWidth + j + 1 + pointCount;
 			eboLoc += 6;
-		}
-	}
-}
-
-void ShallowWater::UpdateDerivatives()
-{
-	// Reset derivatives to 0
-	for (auto& i : water) {
-		i.dh = 0;
-		i.dhx = 0;
-		i.dhz = 0;
-	}
-
-	// Update dhx, dhz
-	for (size_t i = 0; i < zBins; i++) {
-		for (size_t j = 0; j < xBins; j++) {
-			size_t idx = i * xBins + j;
-			size_t idxRight = idx + 1;
-			size_t idxBot = idx + xBins;
-			// Left, Top will be set from the opposite of Right, Bot for another cell
-			// Flow from Right
-			if (j != xBins - 1) {
-				float dhx = water[idxRight].GetXTerm() - water[idx].GetXTerm();
-				float dhz = water[idxRight].GetXZTerm() - water[idx].GetXZTerm();
-				dhx /= dx;
-				dhz /= dz;
-
-				water[idxRight].dhx += dhx;
-				water[idx].dhx -= dhx;
-				water[idxRight].dhz += dhz;
-				water[idx].dhz -= dhz;
-			}
-			// Flow from Bot
-			if (i != zBins - 1) {
-				float dhx = water[idxBot].GetXZTerm() - water[idx].GetXZTerm();
-				float dhz = water[idxBot].GetZTerm() - water[idx].GetZTerm();
-
-				water[idxBot].dhx += dhx;
-				water[idx].dhx -= dhx;
-				water[idxBot].dhz += dhz;
-				water[idx].dhz -= dhz;
-			}
-		}
-	}
-
-	// Update dh
-	for (size_t i = 0; i < zBins; i++) {
-		for (size_t j = 0; j < xBins; j++) {
-			size_t idx = i * xBins + j;
-			size_t idxRight = idx + 1;
-			size_t idxBot = idx + xBins;
-			// Left, Top will be set from the opposite of Right, Bot for another cell
-			// Flow from Right
-			if (j != xBins - 1) {
-				float vx = water[idxRight].hx - water[idx].hx;
-				water[idxRight].dh -= vx;
-				water[idx].dh += vx;
-			}
-			// Flow from Bot
-			if (i != zBins - 1) {
-				float vz = water[idxBot].hz - water[idx].hz;
-				water[idxBot].dh -= vz;
-				water[idx].dh += vz;
-			}
 		}
 	}
 }
