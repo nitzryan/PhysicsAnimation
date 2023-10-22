@@ -27,7 +27,8 @@ const GLchar* vertexSource =
 "out vec4 Color;"
 "uniform mat4 view;"
 "uniform mat4 proj;"
-"const vec3 inlightDir = normalize(vec3(0,0,-1));"
+"uniform vec3 CameraPos;"
+"const vec3 inlightDir = normalize(vec3(0,-1,0));"
 "out vec3 normalOut;"
 "out vec3 pos;"
 "out vec3 eyePos;"
@@ -35,11 +36,12 @@ const GLchar* vertexSource =
 "void main() {"
 " Color = inColor;"
 " gl_Position = view * vec4(position, 1.0);"
-" pos = gl_Position.xyz / gl_Position.w;"
+" pos = position;"
 " vec4 norm4 = transpose(inverse(view)) * vec4(normal, 0.0);"
-" normalOut = norm4.xyz;"
-" lightDir = (view * vec4(inlightDir, 0)).xyz;"
+" normalOut = normal;"
+" lightDir = inlightDir;"
 " gl_Position = proj * gl_Position;"
+" eyePos = CameraPos;"
 "}";
 
 const GLchar* fragmentSource =
@@ -51,18 +53,18 @@ const GLchar* fragmentSource =
 "in vec3 lightDir;"
 "out vec4 outColor;"
 "const float ka = 0.6;"
-"const float kd = 0.2;"
+"const float kd = 0.4;"
 "const float ks = 0.2;"
 "void main() {"
 " vec3 N = normalize(normalOut);" //Re-normalized the interpolated normals
-" vec3 diffuseC = kd * Color.xyz*max(dot(lightDir,N),0.0);"
+" vec3 diffuseC = kd * Color.xyz*max(dot(-lightDir,N),0.0);"
 " vec3 ambC = Color.xyz*ka;"
 " vec3 reflectDir = reflect(-lightDir,N);"
 " reflectDir = normalize(reflectDir);"
-" vec3 viewDir = normalize(-pos);" //We know the eye is at 0,0
-" float spec = max(dot(reflectDir,viewDir),0.0);"
-" if (dot(lightDir,N) <= 0.0) spec = 0;"
-" vec3 specC = vec3(ks,ks,ks)*pow(spec,10);"
+" vec3 viewDir = normalize(pos - eyePos);"
+" float spec = max(dot(reflectDir, viewDir),0.0);"
+" if (dot(-lightDir,N) <= 0.0) spec = 0;"
+" vec3 specC = vec3(ks,ks,ks)*pow(spec,20);"
 " outColor = vec4(ambC+diffuseC+specC, Color.a);"
 "}";
 
@@ -170,10 +172,6 @@ void Renderer::FinalizeFrame()
 	glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(shaderProgram);
-	int cameraLocation = glGetUniformLocation(shaderProgram, "CameraPos");
-	glUniform3f(cameraLocation, cameraPos.x, cameraPos.y, cameraPos.z);
-	int cameraScaleLoc = glGetUniformLocation(shaderProgram, "CameraScale");
-	glUniform2f(cameraScaleLoc, cameraScale.x, cameraScale.y);
 
 	glm::mat4 view = glm::lookAt(
 		glm::vec3(cameraPos.x, cameraPos.y, cameraPos.z), 
@@ -186,6 +184,9 @@ void Renderer::FinalizeFrame()
 	glm::mat4 proj = glm::perspective(3.14f / 4, 1.0f, 0.1f, 10.0f);
 	GLint uProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+	GLint uCameraPos = glGetUniformLocation(shaderProgram, "CameraPos");
+	glUniform3f(uCameraPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
 	glBufferData(GL_ARRAY_BUFFER, currentVboLoc * sizeof(float), &vboContents[0], GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, currentIndicesLoc * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);

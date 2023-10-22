@@ -1,7 +1,6 @@
 #pragma once
 #include "../geometry/Pos3F.h"
 #include "../geometry/Vec3F.h"
-#include "../glm/glm.hpp"
 
 class Camera
 {
@@ -13,7 +12,8 @@ public:
 	Pos3F GetScale() const { return Pos3F(zoom, zoom * aspect, 0); }
 	void IncreaseZoom(float inc);
 	void SetAspect(float w, float h) { aspect = w / h; }
-	void Translate(const Vec3F& vel, float dt);
+	void StepZ(float d);
+	void StepX(float d);
 	void RotateX(float w, float dt);
 	void RotateY(float w, float dt);
 	//void RotateZ(float w, float dt);
@@ -23,10 +23,7 @@ private:
 	Pos3F pos;
 	float zoom;
 	float aspect;
-	glm::mat3 rot;
 	Vec3F lookDir;
 	Vec3F upDir;
-
-	void ClampPosition();
 };
 

@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "water/ShallowWater.h"
+#include "Scene.h"
 
 struct ScreenDetails {
 	bool fullscreen;
@@ -37,7 +38,7 @@ int main(int, char**) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	//Create a window (offsetx, offsety, width, height, flags)
-	SDL_Window* window = SDL_CreateWindow("CSCI5611 Proj1", 100, 100,
+	SDL_Window* window = SDL_CreateWindow("CSCI5611 Proj2", 100, 100,
 		screenDetails.width, screenDetails.height, SDL_WINDOW_OPENGL);
 	if (!window) {
 		printf("Could not create window: %s\n", SDL_GetError());
@@ -56,7 +57,8 @@ int main(int, char**) {
 
 
 	Renderer renderer = Renderer();
-	Camera camera(1, 1, Pos3F(1, 5, 6), Vec3F(0, -1, -2));
+	Camera camera(1, 1, Pos3F(1, 5, 6), Vec3F(0, -1, -2), Vec3F(0, 2, -1));
+	//Camera camera(1, 1, Pos3F(1, 10, 1), Vec3F(0, -1, 0), Vec3F(0, 0, 1));
 	camera.SetAspect(screenDetails.width, screenDetails.height);
 
 	ShallowWater water = ShallowWater(Pos3F(0, 0, 0), Pos3F(2, 2, 2), 25, 25, 0.1);
@@ -141,16 +143,16 @@ int main(int, char**) {
 		}
 		else {
 			if (input.rightPressed) {
-				camera.Translate(Vec3F(-1, 0, 0), frameTime);
+				camera.StepX(frameTime);
 			}
 			if (input.leftPressed) {
-				camera.Translate(Vec3F(1, 0, 0), frameTime);
+				camera.StepX(-frameTime);
 			}
 			if (input.upPressed) {
-				camera.Translate(Vec3F(0, 0, 1), frameTime);
+				camera.StepZ(frameTime);
 			}
 			if (input.downPressed) {
-				camera.Translate(Vec3F(0, 0, -1), frameTime);
+				camera.StepZ(-frameTime);
 			}
 		}
 		
