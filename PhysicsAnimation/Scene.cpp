@@ -87,7 +87,7 @@ void Scene::LoadScene(int scene, Camera& camera)
 		std::cout << "Loading Water Scene\n";
 		water.emplace_back(Pos3F(0, 0, 0), Pos3F(2, 2, 2), 25, 25, 0.1);
 
-		grass.color = ColorRGBA(0.1, 0.6, 0, 1);
+		grass.color = ColorRGBA(0.1, 0.4, 0, 1);
 		grass.textureID = -1;
 
 		sand.color = ColorRGBA(0.85, 0.75, 0.50, 1);
