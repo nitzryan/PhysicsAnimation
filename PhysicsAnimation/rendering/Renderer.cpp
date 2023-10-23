@@ -34,11 +34,9 @@ const GLchar* vertexSource =
 "uniform mat4 view;"
 "uniform mat4 proj;"
 "uniform vec3 CameraPos;"
-"const vec3 inlightDir = normalize(vec3(1,0,0));"
 "out vec3 normalOut;"
 "out vec3 pos;"
 "out vec3 eyePos;"
-"out vec3 lightDir;"
 "out vec2 tCoord;"
 "void main() {"
 " Color = inColor;"
@@ -46,7 +44,6 @@ const GLchar* vertexSource =
 " pos = position;"
 " vec4 norm4 = transpose(inverse(view)) * vec4(normal, 0.0);"
 " normalOut = normal;"
-" lightDir = inlightDir;"
 " gl_Position = proj * gl_Position;"
 " eyePos = CameraPos;"
 " tCoord = texCoord;"
@@ -58,26 +55,26 @@ const GLchar* fragmentSource =
 "in vec3 normalOut;"
 "in vec3 pos;"
 "in vec3 eyePos;"
-"in vec3 lightDir;"
 "in vec2 tCoord;"
 "out vec4 outColor;"
 "const float ka = 0.6;"
-"const float kd = 0.4;"
-"const float ks = 0.2;"
+"const float kd = 0.5;"
+"const float ks = 0.0;"
 "uniform sampler2D myTexture;"
 "uniform int useTexture;"
+"uniform vec3 lightDir;"
 "void main() {"
 " vec4 FragColor;"
 " if (useTexture == 1) FragColor = texture(myTexture, tCoord);"
 " else FragColor = Color;"
 " vec3 N = normalize(normalOut);" //Re-normalized the interpolated normals
-" vec3 diffuseC = kd * FragColor.xyz*max(dot(-lightDir,N),0.0);"
+" vec3 diffuseC = kd * FragColor.xyz*max(dot(lightDir,N),0.0);"
 " vec3 ambC = FragColor.xyz*ka;"
-" vec3 reflectDir = reflect(-lightDir,N);"
+" vec3 reflectDir = reflect(lightDir,N);"
 " reflectDir = normalize(reflectDir);"
 " vec3 viewDir = normalize(pos - eyePos);"
 " float spec = max(dot(reflectDir, viewDir),0.0);"
-" if (dot(-lightDir,N) <= 0.0) spec = 0;"
+" if (dot(lightDir,N) <= 0.0) spec = 0;"
 " vec3 specC = vec3(ks,ks,ks)*pow(spec,20);"
 " outColor = vec4(ambC+diffuseC+specC, FragColor.a);"
 "}";
@@ -232,8 +229,10 @@ void Renderer::FinalizeFrame()
 	GLint uCameraPos = glGetUniformLocation(shaderProgram, "CameraPos");
 	glUniform3f(uCameraPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
-	GLint useTextures = glGetUniformLocation(shaderProgram, "useTexture");
+	GLint uLightDir = glGetUniformLocation(shaderProgram, "lightDir");
+	glUniform3f(uLightDir, lightDir.x, lightDir.y, lightDir.z);
 
+	GLint useTextures = glGetUniformLocation(shaderProgram, "useTexture");
 	GLint textureLoc = glGetUniformLocation(shaderProgram, "myTexture");
 
 	glBufferData(GL_ARRAY_BUFFER, currentVboLoc * sizeof(float), &vboContents[0], GL_STATIC_DRAW);

@@ -16,6 +16,7 @@ public:
 
 	void SetCamera(const Camera& camera);
 	void Render(const IRenderable& obj);
+	void SetLightDirection(const Vec3F& v) { lightDir = v; lightDir.Normalize(); }
 	void FinalizeFrame();
 private:
 	GLuint vbo;
@@ -32,6 +33,7 @@ private:
 
 	Pos3F cameraPos, cameraScale;
 	Vec3F cameraDir, upDir;
+	Vec3F lightDir;
 	GLint posAttrib, colAttrib, normAttrib, texAttrib;
 	GLuint vertexShader, fragmentShader;
 

@@ -7,13 +7,13 @@ const float PI = 3.1415;
 ShallowWater::ShallowWater(const Pos3F& pLower, const Pos3F& pUpper, int xBins, int zBins, float yRenderHeight) :
 	xBins(xBins), zBins(zBins), yRenderHeight(yRenderHeight), base(pLower)
 {
-	dx = (pUpper.x - pLower.x) / (xBins - 1);
-	dz = (pUpper.z - pLower.z) / (zBins - 1);
+	dx = (pUpper.x - pLower.x) / (xBins);
+	dz = (pUpper.z - pLower.z) / (zBins);
 
 	water.reserve(xBins * zBins);
 	for (size_t i = 0; i < zBins; i++) {
 		for (size_t j = 0; j < xBins; j++) {
-			water.emplace_back(2 + 0.4 * sinf(i * PI / zBins) + 0.4 * cosf(j * PI / xBins), 0, 0);
+			water.emplace_back(1.8 + 0.8 * sinf(i * PI / zBins) + 0.8 * cosf(j * PI / xBins), 0, 0);
 		}
 	}
 
@@ -220,13 +220,13 @@ void ShallowWater::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCo
 				deltaZ = points[idx - xWidth] - points[idx + xWidth];
 			}
 
-			Vec3F normal = Vec3F::Cross(deltaZ, deltaX);
+			Vec3F normal = Vec3F::Cross(deltaX, deltaZ);
 			normal.Normalize();
 			normals.push_back(normal);
 		}
 	}
 
-	ColorRGBA color = ColorRGBA(0, 0.1, 0.9, 0.7);
+	ColorRGBA color = ColorRGBA(0, 0.1, 0.9, 0.5);
 	// Add Top Points
 	for (size_t i = 0; i < points.size(); i++) {
 		BufferWriter::AddPoint(vbo, vboLoc, points[i], color, normals[i], 0, 0);

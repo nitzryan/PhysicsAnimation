@@ -17,7 +17,7 @@ public:
 	int get_length();
 	std::vector<Pos3F> position;
 	Pos3F get_base_pos();
-
+	static bool DragIsOn;
 private:
 	int length;
 	float link_len;

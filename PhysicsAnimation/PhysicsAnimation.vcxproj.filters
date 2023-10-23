@@ -66,6 +66,9 @@
     <ClCompile Include="water\ShallowWater.cpp">
       <Filter>water</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\PlaneRenderable.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sdl\SDL.h">
@@ -130,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="textures\stb_image.h">
       <Filter>textures</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\PlaneRenderable.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

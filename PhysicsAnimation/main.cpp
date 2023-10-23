@@ -23,7 +23,148 @@ struct UserInput {
 	bool upPressed = false;
 	bool downPressed = false;
 	bool lctrl = false;
+	bool quit = false;
+	bool windToggle = false;
+	bool lightToggle = false;
 };
+
+int GetInput(UserInput& input, SDL_Event& windowEvent) {
+	int scene = -1;
+	while (SDL_PollEvent(&windowEvent)) {
+		if (windowEvent.type == SDL_QUIT) input.quit = true; //Exit Game Loop
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE)
+			input.quit = true; //Exit Game Loop
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LEFT)
+			input.leftPressed = false;
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_RIGHT)
+			input.rightPressed = false;
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_DOWN)
+			input.downPressed = false;
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_UP)
+			input.upPressed = false;
+		if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LCTRL)
+			input.lctrl = false;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LEFT)
+			input.leftPressed = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_RIGHT)
+			input.rightPressed = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_DOWN)
+			input.downPressed = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_UP)
+			input.upPressed = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LCTRL)
+			input.lctrl = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_1)
+			scene = 1;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_2)
+			scene = 2;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_w)
+			input.windToggle = true;
+		if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_l)
+			input.lightToggle = true;
+	}
+
+	return scene;
+}
+
+void MoveCamera(const UserInput& input, Camera& camera, float frameTime) {
+	if (input.lctrl) {
+		float w = 0.6;
+		if (input.rightPressed) {
+			camera.RotateY(w, frameTime);
+		}
+		if (input.leftPressed) {
+			camera.RotateY(-w, frameTime);
+		}
+		if (input.upPressed) {
+			camera.RotateX(w, frameTime);
+		}
+		if (input.downPressed) {
+			camera.RotateX(-w, frameTime);
+		}
+	}
+	else {
+		if (input.rightPressed) {
+			camera.StepX(frameTime);
+		}
+		if (input.leftPressed) {
+			camera.StepX(-frameTime);
+		}
+		if (input.upPressed) {
+			camera.StepZ(frameTime);
+		}
+		if (input.downPressed) {
+			camera.StepZ(-frameTime);
+		}
+	}
+}
+
+int windSpeed = 2;
+int lightDir = 3;
+void HandleToggleables(UserInput& input, Scene& scene, Renderer& renderer) {
+	if (input.windToggle) {
+		if (windSpeed == 3) {
+			scene.SetWind(Vec3F(0, 0, 0));
+			std::cout << "Drag: Off\n";
+			Rope::DragIsOn = false;
+			windSpeed = -1;
+		}
+		else if (windSpeed == -1) {
+			Rope::DragIsOn = true;
+			std::cout << "Wind: Off, Drag: On\n";
+			scene.SetWind(Vec3F(0, 0, 0));
+			windSpeed++;
+		}
+		else  if (windSpeed == 0) {
+			scene.SetWind(Vec3F(3, 0, -3));
+			std::cout << "Wind: Low\n";
+			windSpeed++;
+		}
+		else if (windSpeed == 1) {
+			scene.SetWind(Vec3F(6, 0, -6));
+			std::cout << "Wind: Med\n";
+			windSpeed++;
+		}
+		else if (windSpeed == 2) {
+			scene.SetWind(Vec3F(10, 0, -10));
+			std::cout << "Wind: High\n";
+			windSpeed++;
+		}
+
+		input.windToggle = false;
+	}
+
+	if (input.lightToggle) {
+		if (lightDir == 3) {
+			renderer.SetLightDirection(Vec3F(1, 0, 0));
+			std::cout << "Light: Front\n";
+			lightDir = 0;
+		}
+		else if (lightDir == 0) {
+			renderer.SetLightDirection(Vec3F(0, -1, 0));
+			std::cout << "Light: Top\n";
+			lightDir++;
+		}
+		else if (lightDir == 1) {
+			renderer.SetLightDirection(Vec3F(-1, 0, 0));
+			std::cout << "Light: Back\n";
+			lightDir++;
+		}
+		else if (lightDir == 2) {
+			renderer.SetLightDirection(Vec3F(0, 1, 0));
+			std::cout << "Light: Bot\n";
+			lightDir++;
+		}
+
+		input.lightToggle = false;
+	}
+}
+
+void GiveUserInstructions() {
+	std::cout << "Press 1, 2 to toggle between scenes\n";
+	std::cout << "Press w to toggle wind\n";
+	std::cout << "Press l to toggle the light source location\n";
+}
 
 int main(int, char**) {
 	// Setup SDL
@@ -55,68 +196,34 @@ int main(int, char**) {
 		return -1;
 	}
 
-
 	Renderer renderer = Renderer();
 	Camera camera(1, 1, Pos3F(1, 5, 6), Vec3F(0, -1, -2), Vec3F(0, 2, -1));
-	//Camera camera(1, 1, Pos3F(1, 10, 1), Vec3F(0, -1, 0), Vec3F(0, 0, 1));
 	camera.SetAspect(screenDetails.width, screenDetails.height);
-
-	ShallowWater water = ShallowWater(Pos3F(0, 0, 0), Pos3F(2, 2, 2), 25, 25, 0.1);
 
 	// Main Loop
 	SDL_Event windowEvent;
 	bool quit = false;
 
-	//TestRenderable testRenderable = TestRenderable();
-	// test code to see if cloth works
-	std::vector<Rope> ropes;
-	for (int i = 0; i < 80; i++) {
-		Rope rope = Rope(25, .02, Pos3F(i*.01,0,i*.01), Vec3F::Cross(Vec3F(.5,0,.5),Vec3F(0,-1,0)).GetNormalized());
-		ropes.push_back(rope);
-	}
-
-
 	Scene scene = Scene(1,10,Vec3F(0,-10,0), Vec3F(10,0,-10), &renderer);
-	Cloth cloth = Cloth(ropes);
-	SphereRenderable sphere = SphereRenderable(Pos3F(.25, -0.4, .25), .25);
-	scene.add_cloth(cloth);
-	scene.add_sphere(sphere);
+	scene.LoadScene(1, camera);
 
 	auto lastFrameTime = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<float> targetFrameTime(0.01);
 	
 	UserInput input;
-	float time_accum = 0;
+	GiveUserInstructions();
+	input.windToggle = true;
+	input.lightToggle = true;
+	HandleToggleables(input, scene, renderer); // Done so that it outputs the scene state to console
+
 	while (!quit) {
 		// Keyboard events
-		while (SDL_PollEvent(&windowEvent)) {
-			if (windowEvent.type == SDL_QUIT) quit = true; //Exit Game Loop
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE)
-				quit = true; //Exit Game Loop
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_f) {
-				screenDetails.fullscreen = !screenDetails.fullscreen;
-				SDL_SetWindowFullscreen(window, screenDetails.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
-			}
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LEFT)
-				input.leftPressed = false;
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_RIGHT)
-				input.rightPressed = false;
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_DOWN)
-				input.downPressed = false;
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_UP)
-				input.upPressed = false;
-			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_LCTRL)
-				input.lctrl = false;
-			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LEFT)
-				input.leftPressed = true;
-			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_RIGHT)
-				input.rightPressed = true;
-			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_DOWN)
-				input.downPressed = true;
-			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_UP)
-				input.upPressed = true;
-			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_LCTRL)
-				input.lctrl = true;
+		int newSceneId = GetInput(input, windowEvent);
+		HandleToggleables(input, scene, renderer);
+
+		if (newSceneId != -1) {
+			scene.LoadScene(newSceneId, camera);
+			camera.SetAspect(screenDetails.width, screenDetails.height);
 		}
 
 		auto thisFrameTime = std::chrono::high_resolution_clock::now();
@@ -126,40 +233,9 @@ int main(int, char**) {
 		renderer.SetCamera(camera);
 		float frameTime = dt.count();
 		
-		if (input.lctrl) {
-			float w = 0.6;
-			if (input.rightPressed) {
-				camera.RotateY(w, frameTime);
-			}
-			if (input.leftPressed) {
-				camera.RotateY(-w, frameTime);
-			}
-			if (input.upPressed) {
-				camera.RotateX(w, frameTime);
-			}
-			if (input.downPressed) {
-				camera.RotateX(-w, frameTime);
-			}
-		}
-		else {
-			if (input.rightPressed) {
-				camera.StepX(frameTime);
-			}
-			if (input.leftPressed) {
-				camera.StepX(-frameTime);
-			}
-			if (input.upPressed) {
-				camera.StepZ(frameTime);
-			}
-			if (input.downPressed) {
-				camera.StepZ(-frameTime);
-			}
-		}
-		
-		time_accum += frameTime;
+		MoveCamera(input, camera, frameTime);
+		renderer.SetCamera(camera);
 
-		water.Update(frameTime);
-		renderer.Render(water);
 		scene.update(frameTime);
 		scene.render();
 
@@ -168,7 +244,6 @@ int main(int, char**) {
 		lastFrameTime = thisFrameTime;
 
 		SDL_GL_SwapWindow(window); //Double buffering
-
 	}
 
 	return 0;

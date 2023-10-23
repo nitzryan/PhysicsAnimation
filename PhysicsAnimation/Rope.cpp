@@ -1,6 +1,8 @@
 #include "Rope.h"
 #include <assert.h>
 
+bool Rope::DragIsOn = true;
+
 Rope::Rope(int length, float link_len, Pos3F start, Vec3F dir) {
 	this->length = length;
 	this->link_len = link_len;
@@ -24,13 +26,15 @@ void Rope::ApplyGravity(float dt, const Vec3F& gravity)
 
 void Rope::ApplyWind(float dt, const Vec3F& wind, Rope& rope)
 {
+	if (!DragIsOn)
+		return;
 	assert(length == rope.length && length > 0);
 
 	auto GetAccel = [wind](const Pos3F& p1, const Pos3F& p2, const Pos3F& p3, const Vec3F& v1, const Vec3F& v2, const Vec3F& v3, const Vec3F& v4) {
 		Vec3F v = Vec3F::Mul(v1 + v2 + v3 + v4, 0.25f);
 		v.Sub(wind);
 		const float p = 1.2; // Density of Air
-		const float cd = 0.1; // Need to modify this to get behavior correct
+		const float cd = 0.2; // Need to modify this to get behavior correct
 
 		// Calculate normal
 		Vec3F v12 = p1.Subtract(p2);

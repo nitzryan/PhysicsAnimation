@@ -15,7 +15,7 @@ public:
 		vbo[vboLoc + 2] = p.z;
 		vbo[vboLoc + 3] = c.r;
 		vbo[vboLoc + 4] = c.g;
-		vbo[vboLoc + 5] = c.g;
+		vbo[vboLoc + 5] = c.b;
 		vbo[vboLoc + 6] = c.a;
 		vbo[vboLoc + 7] = n.x;
 		vbo[vboLoc + 8] = n.y;

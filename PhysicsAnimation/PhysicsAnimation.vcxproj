@@ -149,6 +149,7 @@
     <ClCompile Include="glad\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
+    <ClCompile Include="rendering\PlaneRenderable.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="Rope.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="rendering\ColorRGBA.h" />
     <ClInclude Include="rendering\IRenderable.h" />
     <ClInclude Include="rendering\Material.h" />
+    <ClInclude Include="rendering\PlaneRenderable.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\RenderingData.h" />
     <ClInclude Include="rendering\BufferWriter.h" />
