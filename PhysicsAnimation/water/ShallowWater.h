@@ -14,6 +14,7 @@ public:
 	int NumIndices() const override;
 	int NumPoints() const override;
 	void Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, std::vector<unsigned int>& ebo, size_t eboLoc) const override;
+	Material GetMaterial() const override;
 private:
 	Pos3F base;
 	float dx, dz;

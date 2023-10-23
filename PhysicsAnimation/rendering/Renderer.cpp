@@ -1,10 +1,15 @@
 #include "Renderer.h"
 #include <iostream>
 
+// Matrix/Vector Math
 #define GLM_FORCE_RADIANS
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
 #include "../glm/gtc/type_ptr.hpp"
+
+// Loading images into textures
+#define STB_IMAGE_IMPLEMENTATION
+#include "../textures/stb_image.h"
 
 void loadShader(GLuint shaderID, const GLchar* shaderSource) {
 	glShaderSource(shaderID, 1, &shaderSource, NULL);
@@ -24,15 +29,17 @@ const GLchar* vertexSource =
 "in vec3 position;"
 "in vec4 inColor;"
 "in vec3 normal;"
+"in vec2 texCoord;"
 "out vec4 Color;"
 "uniform mat4 view;"
 "uniform mat4 proj;"
 "uniform vec3 CameraPos;"
-"const vec3 inlightDir = normalize(vec3(0,-1,0));"
+"const vec3 inlightDir = normalize(vec3(1,0,0));"
 "out vec3 normalOut;"
 "out vec3 pos;"
 "out vec3 eyePos;"
 "out vec3 lightDir;"
+"out vec2 tCoord;"
 "void main() {"
 " Color = inColor;"
 " gl_Position = view * vec4(position, 1.0);"
@@ -42,6 +49,7 @@ const GLchar* vertexSource =
 " lightDir = inlightDir;"
 " gl_Position = proj * gl_Position;"
 " eyePos = CameraPos;"
+" tCoord = texCoord;"
 "}";
 
 const GLchar* fragmentSource =
@@ -51,21 +59,27 @@ const GLchar* fragmentSource =
 "in vec3 pos;"
 "in vec3 eyePos;"
 "in vec3 lightDir;"
+"in vec2 tCoord;"
 "out vec4 outColor;"
 "const float ka = 0.6;"
 "const float kd = 0.4;"
 "const float ks = 0.2;"
+"uniform sampler2D myTexture;"
+"uniform int useTexture;"
 "void main() {"
+" vec4 FragColor;"
+" if (useTexture == 1) FragColor = texture(myTexture, tCoord);"
+" else FragColor = Color;"
 " vec3 N = normalize(normalOut);" //Re-normalized the interpolated normals
-" vec3 diffuseC = kd * Color.xyz*max(dot(-lightDir,N),0.0);"
-" vec3 ambC = Color.xyz*ka;"
+" vec3 diffuseC = kd * FragColor.xyz*max(dot(-lightDir,N),0.0);"
+" vec3 ambC = FragColor.xyz*ka;"
 " vec3 reflectDir = reflect(-lightDir,N);"
 " reflectDir = normalize(reflectDir);"
 " vec3 viewDir = normalize(pos - eyePos);"
 " float spec = max(dot(reflectDir, viewDir),0.0);"
 " if (dot(-lightDir,N) <= 0.0) spec = 0;"
 " vec3 specC = vec3(ks,ks,ks)*pow(spec,20);"
-" outColor = vec4(ambC+diffuseC+specC, Color.a);"
+" outColor = vec4(ambC+diffuseC+specC, FragColor.a);"
 "}";
 
 
@@ -116,14 +130,41 @@ Renderer::Renderer() : cameraPos(0, 0, 0), cameraScale(1,1,1), cameraDir(0,0,-1)
 		vertexSize * sizeof(float), (void*)(7 * sizeof(float)));
 	glEnableVertexAttribArray(normAttrib);
 
+	texAttrib = glGetAttribLocation(shaderProgram, "texCoord");
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE,
+		vertexSize * sizeof(float), (void*)(10 * sizeof(float)));
+	glEnableVertexAttribArray(texAttrib);
+
 	glBindVertexArray(0); //Unbind the VAO so we don’t accidentally modify it
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Load Textures using stb_image.h
+	std::vector<std::string> names = {"textures//earth.jpg", "textures//usFlag.jpg"};
+	for (auto& i : names) {
+		int width, height, channels;
+		unsigned char* imageData = stbi_load(i.c_str(), &width, &height, &channels, 0);
+
+		unsigned int tex;
+		glGenTextures(1, &tex);
+		textures.push_back(tex);
+
+		glBindTexture(GL_TEXTURE_2D, tex);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+		stbi_image_free(imageData);
+	}
 }
 
 
@@ -136,12 +177,14 @@ void Renderer::StartFrame()
 {
 	currentVboLoc = 0;
 	currentIndicesLoc = 0;
+	renderingQueue.clear();
 }
 
 void Renderer::Render(const IRenderable& obj)
 {
 	int numVertices = obj.NumPoints() * vertexSize;
 	int numIndices = obj.NumIndices();
+	Material mat = obj.GetMaterial();
 
 	if (numVertices + currentVboLoc > vboSize) {
 		std::cout << "VBO Size Exceeded\n";
@@ -154,6 +197,7 @@ void Renderer::Render(const IRenderable& obj)
 	}
 
 	obj.Render(vboContents, currentVboLoc, currentVboLoc / vertexSize, indices, currentIndicesLoc);
+	renderingQueue.push_back(RenderingData{ mat, (unsigned int)numIndices, (unsigned int)currentIndicesLoc });
 	currentVboLoc += numVertices;
 	currentIndicesLoc += numIndices;
 }
@@ -188,10 +232,28 @@ void Renderer::FinalizeFrame()
 	GLint uCameraPos = glGetUniformLocation(shaderProgram, "CameraPos");
 	glUniform3f(uCameraPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
+	GLint useTextures = glGetUniformLocation(shaderProgram, "useTexture");
+
+	GLint textureLoc = glGetUniformLocation(shaderProgram, "myTexture");
+
 	glBufferData(GL_ARRAY_BUFFER, currentVboLoc * sizeof(float), &vboContents[0], GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, currentIndicesLoc * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(vao);
 
-	glDrawElements(GL_TRIANGLES, currentIndicesLoc, GL_UNSIGNED_INT, 0);
+	
+	for (auto& i : renderingQueue) {
+		if (i.material.textureID < 0) { // No Texture
+			glUniform1i(useTextures, 0);
+		}
+		else {
+			glUniform1i(useTextures, 1);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, textures[i.material.textureID]);
+			glUniform1i(textureLoc, 0);
+
+		}
+		glDrawElements(GL_TRIANGLES, i.count, GL_UNSIGNED_INT, (void*)(i.offset * sizeof(unsigned int)));
+	}
+	//glDrawElements(GL_TRIANGLES, currentIndicesLoc, GL_UNSIGNED_INT, 0);
 }

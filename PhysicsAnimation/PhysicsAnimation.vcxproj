@@ -150,7 +150,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
-    <ClCompile Include="rendering\TestCloth.cpp" />
     <ClCompile Include="Rope.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SphereRenderable.cpp" />
@@ -169,13 +168,14 @@
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\ColorRGBA.h" />
     <ClInclude Include="rendering\IRenderable.h" />
+    <ClInclude Include="rendering\Material.h" />
     <ClInclude Include="rendering\Renderer.h" />
-    <ClInclude Include="rendering\TestCloth.h" />
-    <ClInclude Include="rendering\TestRenderable.h" />
+    <ClInclude Include="rendering\RenderingData.h" />
     <ClInclude Include="rendering\BufferWriter.h" />
     <ClInclude Include="Rope.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="sdl\SDL.h" />
+    <ClInclude Include="textures\stb_image.h" />
     <ClInclude Include="water\ShallowWater.h" />
   </ItemGroup>
   <ItemGroup>

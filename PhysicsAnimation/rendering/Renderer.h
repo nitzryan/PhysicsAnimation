@@ -4,6 +4,7 @@
 #include "../geometry/Pos3F.h"
 #include "IRenderable.h"
 #include "Camera.h"
+#include "RenderingData.h"
 #include <vector>
 
 class Renderer
@@ -21,7 +22,7 @@ private:
 	GLuint vao;
 	GLuint ebo;
 	GLuint shaderProgram;
-	const int vertexSize = 10;
+	const int vertexSize = 12;
 	const int vboSize = 100000 * vertexSize;
 	const int indicesSize = 100000;
 	std::vector<float> vboContents;
@@ -31,7 +32,10 @@ private:
 
 	Pos3F cameraPos, cameraScale;
 	Vec3F cameraDir, upDir;
-	GLint posAttrib, colAttrib, normAttrib;
+	GLint posAttrib, colAttrib, normAttrib, texAttrib;
 	GLuint vertexShader, fragmentShader;
+
+	std::vector<RenderingData> renderingQueue;
+	std::vector<unsigned int> textures;
 };
 

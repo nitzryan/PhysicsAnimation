@@ -112,7 +112,9 @@ void Cloth::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, st
 
 	// Add Points
 	for (size_t i = 0; i < points.size(); i++) {
-		BufferWriter::AddPoint(vbo, vboLoc, points[i], color, normals[i]);
+		float texX = (i / height) / (float)(width - 1);
+		float texY = (i % height) / (float)(height - 1);
+		BufferWriter::AddPoint(vbo, vboLoc, points[i], color, normals[i], texX, texY);
 	}
 
 	// Write to EBO
@@ -127,4 +129,16 @@ void Cloth::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCount, st
 			eboLoc += 6;
 		}
 	}
+}
+
+Material Cloth::GetMaterial() const
+{
+	Material mat;
+	mat.color = color;
+	mat.ka = 0.6;
+	mat.kd = 0.6;
+	mat.ks = 0.1;
+	mat.specPower = 10;
+	mat.textureID = 1;
+	return mat;
 }

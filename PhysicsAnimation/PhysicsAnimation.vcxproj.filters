@@ -34,6 +34,9 @@
     <Filter Include="water">
       <UniqueIdentifier>{c57c8269-93a3-4863-8fc2-58614aa1d120}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{133a2a33-4398-4e6d-bad4-2aabfb56ecff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,9 +50,6 @@
     </ClCompile>
     <ClCompile Include="glad\glad.c">
       <Filter>glad</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\TestCloth.cpp">
-      <Filter>rendering</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
@@ -101,9 +101,6 @@
     <ClInclude Include="rendering\IRenderable.h">
       <Filter>rendering</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\TestRenderable.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
     <ClInclude Include="glad\khrplatform.h">
       <Filter>glad</Filter>
     </ClInclude>
@@ -112,9 +109,6 @@
     </ClInclude>
     <ClInclude Include="glm\glm.hpp">
       <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\TestCloth.h">
-      <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
@@ -127,6 +121,15 @@
     </ClInclude>
     <ClInclude Include="water\ShallowWater.h">
       <Filter>water</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Material.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\RenderingData.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="textures\stb_image.h">
+      <Filter>textures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

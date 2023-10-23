@@ -229,7 +229,7 @@ void ShallowWater::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCo
 	ColorRGBA color = ColorRGBA(0, 0.1, 0.9, 0.7);
 	// Add Top Points
 	for (size_t i = 0; i < points.size(); i++) {
-		BufferWriter::AddPoint(vbo, vboLoc, points[i], color, normals[i]);
+		BufferWriter::AddPoint(vbo, vboLoc, points[i], color, normals[i], 0, 0);
 	}
 
 	// Render top
@@ -244,4 +244,16 @@ void ShallowWater::Render(std::vector<float>& vbo, size_t vboLoc, size_t pointCo
 			eboLoc += 6;
 		}
 	}
+}
+
+Material ShallowWater::GetMaterial() const
+{
+	Material mat;
+	mat.color = ColorRGBA(0, 0.1, 0.9, 0.7);
+	mat.ka = 0.6;
+	mat.kd = 0.6;
+	mat.ks = 0.1;
+	mat.specPower = 10;
+	mat.textureID = -1;
+	return mat;
 }

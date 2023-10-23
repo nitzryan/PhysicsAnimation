@@ -160,6 +160,8 @@ int main(int, char**) {
 
 		water.Update(frameTime);
 		renderer.Render(water);
+		scene.update(frameTime);
+		scene.render();
 
 		renderer.FinalizeFrame();
 
